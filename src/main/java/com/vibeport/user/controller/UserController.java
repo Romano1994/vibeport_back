@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping(value = "/vibeport/user/")
 @RequiredArgsConstructor
@@ -43,6 +46,17 @@ public class UserController {
     public ResponseEntity sendVerificationCode(@RequestBody UserVo userVo) throws Exception{
         // 인증 코드 전송 로직
         this.userService.sendVerificationCode(userVo);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /*
+     * 인증 코드 확인
+     */
+    @PostMapping("verifyCode")
+    public ResponseEntity verifyCode(@RequestBody Map<String, Object> param) throws Exception{
+        // 인증 코드 확인
+        this.userService.verifyCode(param);
 
         return ResponseEntity.ok().build();
     }
