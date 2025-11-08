@@ -4,7 +4,12 @@ import lombok.Data;
 
 @Data
 public class UserVo {
+    String userNo;
     String email;
-
-     String name;
+    String userName;
+    String pwd;
+    String adminYn;
+    String lockYn;
+    String lockDate;
+    String regDate;
 }
