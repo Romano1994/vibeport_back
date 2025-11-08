@@ -44,6 +44,7 @@ public class UserController {
      */
     @PostMapping("sendVerificationCode")
     public ResponseEntity sendVerificationCode(@RequestBody UserVo userVo) throws Exception{
+        // TODO : 추후 실행 정도에 따라 다른 쓰레드에서 실행되도록 변경 필요
         // 인증 코드 전송 로직
         this.userService.sendVerificationCode(userVo);
 

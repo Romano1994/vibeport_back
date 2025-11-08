@@ -21,7 +21,7 @@ public interface UserMapper {
     /*
      * 인증 코드 DB 저장
      */
-    void insertEmailVerificationCodes(List<Map<String, String>> resultList);
+    void insertEmailVerificationCodes(Map<String, String> param);
 
     /*
      * 올바른 인증 코드인지 확인

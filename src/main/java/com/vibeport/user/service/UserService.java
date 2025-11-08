@@ -52,10 +52,10 @@ public class UserService {
         String verificationCode = this.generateVerificationCode();
 
         // 인증코드 이메일 전송
-        List<Map<String, String>> resultList = this.mailSMTP.sendVerificationEmail(email, verificationCode);
+        Map<String, String> resultMap = this.mailSMTP.sendVerificationEmail(email, verificationCode);
 
          //인증 코드 저장
-        this.userMapper.insertEmailVerificationCodes(resultList);
+        this.userMapper.insertEmailVerificationCodes(resultMap);
 
         System.out.println("verificationCode==========" + verificationCode);
     }

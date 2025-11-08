@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
-import java.util.Properties;
+import java.util.*;
 
 @Component
 public class MailSMTP {
@@ -28,8 +28,7 @@ public class MailSMTP {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public void sendVerificationEmail(String email, String verificationCode) {
-
+    public Map<String, String> sendVerificationEmail(String email, String verificationCode) {
         Properties props = new Properties();
 
         Session session = Session.getInstance(props, new Authenticator() {
@@ -38,5 +37,14 @@ public class MailSMTP {
                 return new PasswordAuthentication(smtpFrom, smtpPwd);
             }
         });
+
+        //TODO - 메일 발송 로직 추가
+        try {
+
+        } catch (Exception e) {
+
+        }
+
+        return Map.of("email", email, "code", verificationCode);
     }
 }

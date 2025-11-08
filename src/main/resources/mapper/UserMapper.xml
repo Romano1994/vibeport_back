@@ -2,152 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vibeport.user.mapper.UserMapper">
 
-    <select id="selectUserListByEmail">
-        /* UserMapper.selectUserListByEmail select user information by inputted email */
-        SELECT A.MBR_NO
-             , A.EMAIL
-        FROM   MBR A
-        WHERE  ADMIN_YN = 'N'
-          AND  EMAIL    = #{email}
-    </select>
-
-    <insert id="insertUser">
-        /* UserMapper.insertUser insert new user */
-        INSERT INTO MBR
-        (
-            MBR_NO
-            , ID
-            , EMAIL
-            , PWD
-            , LOCK_YN
-            , ADMIN_YN
-            , REG_NM
-            , REG_DTT
-            , IP
-            , RPT_LOCK_YN
-        ) VALUES (
-            #{mbrNo}
-            , #{id}
-            , #{email}
-            , #{pwd}
-            , 'N'
-            , 'N'
-            , #{regNm}
-            , SYSDATE()
-            , #{ip}
-            , 'N'
-        )
-    </insert>
-
-    <select id="checkExistedIdByEmail" parameterType="java.util.Map" resultType="boolean">
-        /* UserMapper.checkExistedIdByEmail checking email weather if already using or not */
+    <select id="checkEmailExists" parameterType="String" resultType="Boolean">
+        /* UserMapper.checkEmailExists 이미 가입된 이메일인지 확인 */
         SELECT EXISTS (
-            SELECT  1
-              FROM  MBR A
-             WHERE  A.EMAIL = #{email}
+            SELECT 1
+            FROM TB_USER
+            WHERE EMAIL = #{email}
         )
     </select>
 
-    <select id="selectUserByEmailAndPwd" parameterType="java.util.Map" resultType="java.util.Map">
-        /* UserMapper.selectUserByEmailAndPwd search user info with email and pwd that inputted */
-        SELECT  MBR_NO
-                , ID
-                , EMAIL
-                , LOCK_YN
-                , ADMIN_YN
-        FROM    MBR
-        WHERE   EMAIL = #{email}
-          AND   AES_DECRYPT(UNHEX(PWD), 'PWD') = #{mbrPwd}
-    </select>
-
-    <select id="findUserByEmail" parameterType="java.util.Map" resultType="bit.kickstory.domain.Mbr">
-        /* UserMapper.findUserByEmail search user info with email and pwd that inputted */
-        SELECT MBR_NO
-             , ID
-             , EMAIL
-             , LOCK_YN
-             , ADMIN_YN
-             , PWD
-             , RPT_LOCK_YN
-          FROM MBR
-         WHERE EMAIL = #{email}
-           AND LOCK_YN <![CDATA[<>]]> 'Y'
-    </select>
-
-    <insert id="insertVerifCode">
-        /* UserMapper.insertVerifCode 인증번호 저장 */
-        INSERT INTO VERIF_CODE_LOG(
-            VERIF_CODE
+    <insert id="insertEmailVerificationCodes">
+        /* UserMapper.insertEmailVerificationCodes 이메일 인증 코드 삽입 */
+        INSERT INTO TB_VERIF_CODE (
+            CODE
             , EMAIL
             , CNT
-            , SEND_DT
-            , DEL_YN
-            , UPD_DTT
+            , REG_DATE
         ) VALUES (
-            #{verif_code}
+            #{code}
             , #{email}
-            , #{cnt}
-            , CURRENT_TIMESTAMP
-            , 'N'
-            , CURRENT_TIMESTAMP
+            , (SELECT CNT FROM (
+                     SELECT IFNULL(COUNT(*), 0) + 1 AS CNT
+                     FROM TB_VERIF_CODE
+                     WHERE EMAIL = #{email}
+            ) AS A)
+            ,NOW()
         )
     </insert>
 
-    <update id="updateVerifCodeDel">
-        /* UserMapper.updateVerifCodeDel 전에 발송된 인증 번호 만료로 변경 */
-        UPDATE VERIF_CODE_LOG
-           SET DEL_YN  = 'Y'
-             , UPD_DTT = CURRENT_TIMESTAMP
-         WHERE EMAIL = #{email}
-    </update>
-
-    <select id="selectVerifCode" parameterType="java.util.Map" resultType="java.util.Map">
-        /* UserMapper.selectVerifCode 인증번호 찾기 */
-        SELECT VERIF_CODE
-             , EMAIL
-             , DEL_YN
-          FROM VERIF_CODE_LOG
-         WHERE EMAIL = #{email}
-           AND VERIF_CODE = #{verifCode}
-           AND DEL_YN = 'N'
-    </select>
-
-    <update id="updatePwd">
-        /* UserMapper.updatePwd 비밀번호 변경 */
-        UPDATE MBR
-           SET PWD = #{pwd}
-         WHERE EMAIL = #{email}
-    </update>
-
-    <insert id="insertLoginLog">
-        /* UserMapper.insertLoginLog 로그인 로그 저장 */
-        INSERT INTO LOGIN_LOG (
-            EMAIL
-            , LOGIN_IP
-            , LOGIN_SUCCESS_YN
-            , REG_DTT
-        ) VALUES (
-            #{email}
-            , #{loginIp}
-            , #{loginYn}
-            , NOW()
+    <select id="selectIsRightCode" parameterType="map" resultType="boolean">
+        /* UserMapper.selectIsRightCode 이메일 인증 코드가 올바른지 확인 */
+        SELECT EXISTS (
+            SELECT 1
+            FROM TB_VERIF_CODE
+            WHERE EMAIL = #{email}
+              AND CODE = #{code}
         )
-    </insert>
-
-    <select id="getHstryWithMbrNo" parameterType="String" resultType="java.util.Map">
-        /* UserMapper.getHstryWithMbrNo 사용자의 HISTORY 수정 내역 조회 */
-        SELECT A.KCKS_HSTRY_MDFCTN_NO
-             , A.MDFCTN_CNTNT
-             , A.UPD_DTT
-          FROM (
-                SELECT A.KCKS_HSTRY_MDFCTN_NO
-                      , A.MDFCTN_CNTNT
-                      , A.UPD_DTT
-                      , ROW_NUMBER() OVER() AS RN
-                  FROM  KCKS_HSTRY_MDFCTN_MNGT AS A
-                 WHERE A.MBR_NO = #{mbrNo}
-                ) AS A
-          WHERE A.RN <![CDATA[<=]]> 100
-          ORDER BY A.UPD_DTT DESC
     </select>
 </mapper>

@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
+//import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -42,16 +42,16 @@ public class GlobalExceptionHandler {
     /**
      * Handles exceptions related to access denial.
      */
-    @ExceptionHandler(AccessDeniedException.class)
-    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
-        log.error("handleAccessDeniedException", ex);
-
-        // 에러 로그 생성 및 삽입
-		this.excuteErrorLog(request, ex);
-
-        final ErrorResponse response = new ErrorResponse(ErrorCode.HANDLE_ACCESS_DENIED);
-        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
-    }
+//    @ExceptionHandler(AccessDeniedException.class)
+//    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+//        log.error("handleAccessDeniedException", ex);
+//
+//        // 에러 로그 생성 및 삽입
+//		this.excuteErrorLog(request, ex);
+//
+//        final ErrorResponse response = new ErrorResponse(ErrorCode.HANDLE_ACCESS_DENIED);
+//        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+//    }
 
     /**
      * Handles exceptions for invalid data binding in @Valid.
