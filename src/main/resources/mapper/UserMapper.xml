@@ -39,4 +39,35 @@
               AND CODE = #{code}
         )
     </select>
+
+    <insert id="insertUser">
+        /* UserMapper.insertUser 새로운 사용자 저장 */
+        INSERT INTO TB_USER (
+            USER_NO
+            , EMAIL
+            , USER_NAME
+            , PASSWORD
+            , ADMIN_YN
+            , USE_YN
+            , LOCK_YN
+            , LOCK_DATE
+            , REG_DATE
+        ) VALUES (
+            #{userNo}
+            , #{email}
+            , #{userName}
+            , #{password}
+            , 'N'
+            , 'Y'
+            , 'N'
+            , NULL
+            , NOW()
+        )
+    </insert>
+
+    <delete id="deletePreVerifCode">
+        /* UserMapper.deletePreVerifCode 이전 인증 코드 삭제 */
+        DELETE FROM TB_VERIF_CODE
+        WHERE EMAIL = #{email}
+    </delete>
 </mapper>

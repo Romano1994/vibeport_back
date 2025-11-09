@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -58,6 +57,17 @@ public class UserController {
     public ResponseEntity verifyCode(@RequestBody Map<String, Object> param) throws Exception{
         // 인증 코드 확인
         this.userService.verifyCode(param);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /*
+     * 회원 가입
+     */
+    @PostMapping("join")
+    public ResponseEntity join(@RequestBody UserVo userVo) throws Exception{
+        // 회원 가입
+        this.userService.join(userVo);
 
         return ResponseEntity.ok().build();
     }

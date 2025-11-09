@@ -5,11 +5,12 @@ import com.vibeport.user.mapper.UserMapper;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,8 @@ public class UserService {
     private final UserMapper userMapper;
 
     private final MailSMTP mailSMTP;
+
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UserVo getUserProfile(String userId) {
         // 사용자 프로필 정보를 조회하는 로직 구현
@@ -54,6 +57,9 @@ public class UserService {
         // 인증코드 이메일 전송
         Map<String, String> resultMap = this.mailSMTP.sendVerificationEmail(email, verificationCode);
 
+        // 이전에 발송된 인증 코드 삭제
+        this.userMapper.deletePreVerifCode(email);
+
          //인증 코드 저장
         this.userMapper.insertEmailVerificationCodes(resultMap);
 
@@ -89,5 +95,43 @@ public class UserService {
             // TODO: BuisinessException으로 변경 필요
             throw new IllegalArgumentException("인증 코드가 올바르지 않습니다.");
         }
+    }
+
+    /*
+     * 회원 가입
+     */
+    public void join(UserVo userVo) {
+        String email = userVo.getEmail();
+        String password = userVo.getPassword();
+
+        if(email == null || email.isEmpty()) {
+            // TODO: BuisinessException으로 변경 필요
+            throw new IllegalArgumentException("이메일은 필수 항목입니다.");
+        }
+
+        if(password == null || password.isEmpty()) {
+            // TODO: BuisinessException으로 변경 필요
+            throw new IllegalArgumentException("비밀번호는 필수 항목입니다.");
+        }
+
+        // 이메일 중복 확인
+        boolean isExistEmail = this.userMapper.checkEmailExists(email);
+        if(isExistEmail) {
+            // TODO: BuisinessException으로 변경 필요
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
+
+        // 회원 ID는 이메일 주소의 '@' 앞부분으로 설정
+        String userName = String.valueOf(userVo.getEmail()).split("@")[0];
+        userVo.setUserName(userName);
+
+        // 비밀번호 암호화
+        userVo.setPassword(passwordEncoder.encode(userVo.getPassword())); //비밀번호를 암호화
+
+        // 고유 회원 번호 생성
+        userVo.setUserNo(UUID.randomUUID().toString());
+
+        // 회원 정보 저장
+        this.userMapper.insertUser(userVo);
     }
 }

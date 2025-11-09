@@ -7,7 +7,7 @@ public class UserVo {
     String userNo;
     String email;
     String userName;
-    String pwd;
+    String password;
     String adminYn;
     String lockYn;
     String lockDate;
