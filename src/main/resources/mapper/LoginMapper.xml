@@ -2,19 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vibeport.auth.mapper.LoginMapper">
 
-    <select id="findByEmail" parameterType="Map" resultType="com.vibeport.auth.domain.User">
+    <select id="findByEmail" parameterType="String" resultType="com.vibeport.user.vo.UserVo">
         /* LoginMapper.findByEmail 이메일, 비밀번호로 사용자 조회 */
-        SELECT USER_NO AS userNo
-             , EMAIL AS email
-             , USER_NAME AS userName
-             , PASSWORD AS password
-             , ADMIN_YN AS adminYn
-             , LOCK_YN AS lockYn
-             , LOCK_DATE AS lockDate
-             , REG_DATE AS regDate
-          FROM TB_USER
+        SELECT A.USER_NO    AS userNo
+             , A.EMAIL      AS email
+             , A.USER_NAME  AS userName
+             , A.PASSWORD   AS password
+             , A.ADMIN_YN   AS adminYn
+             , A.LOCK_YN    AS lockYn
+             , A.LOCK_DATE  AS lockDate
+             , A.REG_DATE   AS regDate
+          FROM TB_USER AS A
          WHERE EMAIL = #{email}
-           AND PASSWORD = #{password}
     </select>
 
 </mapper>

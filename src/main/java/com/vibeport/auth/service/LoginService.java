@@ -3,8 +3,6 @@ package com.vibeport.auth.service;
 import com.vibeport.auth.mapper.LoginMapper;
 import com.vibeport.auth.utils.JwtUtil;
 import com.vibeport.user.vo.UserVo;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,12 +18,9 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public Map<String, String> login(HttpServletRequest request, HttpServletResponse response) {
-        String email = request.getParameter("email");
-        String password = request.getParameter("password");
-
-        Map<String, String> param = Map.of("email", email
-                , "password", passwordEncoder.encode(password));
+    public Map<String, String> login(UserVo userVo) {
+        String email = userVo.getEmail();
+        String password = userVo.getPassword();
 
         // DB에서 사용자 정보 조회
         UserVo user = loginMapper.findByEmail(email);
@@ -47,11 +42,9 @@ public class LoginService {
 
         String role = user.getAdminYn().equals("Y") ? "Admin" : "User";
 
-        Map<String, String> tokens = Map.of(
+        return Map.of(
                 "access", this.jwtUtil.createToken("access", role),
                 "refresh", this.jwtUtil.createToken("refresh", role)
         );
-
-        return tokens;
     }
 }
