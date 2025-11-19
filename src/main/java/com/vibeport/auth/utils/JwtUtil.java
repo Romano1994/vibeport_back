@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -14,6 +15,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
+    @Value("${jwt.secret}")
     private String secret;
 
     private long accessExp;
@@ -29,7 +31,7 @@ public class JwtUtil {
 
     public String createToken(String subject, String role) {
         Date now = new Date();
-        Date exp = new Date();
+        Date exp;
 
         if(subject.equals("access")) {
             exp = new Date(now.getTime() + accessExp);
@@ -43,13 +45,13 @@ public class JwtUtil {
                 .claim("category", subject)
                 .claim("role", role)
                 .setExpiration(exp)
-                .signWith(key, SignatureAlgorithm.ES256)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
     
     public Claims parseClaims(String token) {
-        // TODO - deprecated 확인 필요
-        return Jwts.parser()
+
+        return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
