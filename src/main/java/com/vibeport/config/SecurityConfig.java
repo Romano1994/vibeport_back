@@ -37,7 +37,7 @@ public class SecurityConfig {
 
     // jwt 토큰 확인
     @Bean
-    public JwtAuthenticationFilter JwtAuthenticationFilter() {
+    public JwtAuthenticationFilter JwtAuthenticationFilter(JwtUtil jwtUtil) {
         return new JwtAuthenticationFilter(jwtUtil);
     }
 
@@ -49,7 +49,7 @@ public class SecurityConfig {
                 .requestMatchers("**").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(JwtAuthenticationFilter(new JwtUtil()), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
