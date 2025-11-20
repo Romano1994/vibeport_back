@@ -48,6 +48,7 @@
             , USER_NAME
             , PASSWORD
             , ADMIN_YN
+            , ROLE
             , LOCK_YN
             , LOCK_DATE
             , REG_DATE
@@ -57,6 +58,7 @@
             , #{userName}
             , #{password}
             , 'N'
+            , 'USER'
             , 'N'
             , NULL
             , NOW()

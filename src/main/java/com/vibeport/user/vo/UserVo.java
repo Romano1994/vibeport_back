@@ -9,6 +9,7 @@ public class UserVo {
     String userName;
     String password;
     String adminYn;
+    String role;
     String lockYn;
     String lockDate;
     String regDate;
