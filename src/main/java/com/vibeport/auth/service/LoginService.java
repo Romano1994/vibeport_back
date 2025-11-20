@@ -40,11 +40,9 @@ public class LoginService {
             throw new RuntimeException("사용할 수 없는 계정입니다.");
         }
 
-        String role = user.getAdminYn().equals("Y") ? "Admin" : "User";
-
         return Map.of(
-                "access", this.jwtUtil.createToken("access", role),
-                "refresh", this.jwtUtil.createToken("refresh", role)
+                "access", this.jwtUtil.createToken("access", userVo),
+                "refresh", this.jwtUtil.createRefreshToken(this.jwtUtil.createToken("refresh", userVo))
         );
     }
 }
