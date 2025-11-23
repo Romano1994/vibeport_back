@@ -18,7 +18,7 @@ public class LoginService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public Map<String, String> login(UserVo userVo) {
+    public Map<String, Object> login(UserVo userVo) {
         String email = userVo.getEmail();
         String password = userVo.getPassword();
 
@@ -42,7 +42,8 @@ public class LoginService {
 
         return Map.of(
                 "access", this.jwtUtil.createToken("access", userVo),
-                "refresh", this.jwtUtil.createRefreshToken(this.jwtUtil.createToken("refresh", userVo))
+                "refresh", this.jwtUtil.createRefreshToken(this.jwtUtil.createToken("refresh", userVo)),
+                "userVo", user
         );
     }
 }
