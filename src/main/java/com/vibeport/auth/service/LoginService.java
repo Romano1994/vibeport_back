@@ -1,5 +1,6 @@
 package com.vibeport.auth.service;
 
+import com.vibeport.auth.enums.Tokens;
 import com.vibeport.auth.mapper.LoginMapper;
 import com.vibeport.auth.utils.JwtUtil;
 import com.vibeport.user.vo.UserVo;
@@ -41,8 +42,8 @@ public class LoginService {
         }
 
         return Map.of(
-                "access", this.jwtUtil.createToken("access", userVo),
-                "refresh", this.jwtUtil.createRefreshToken(this.jwtUtil.createToken("refresh", userVo)),
+                "access", this.jwtUtil.createToken(Tokens.ACCESS.getValue(), userVo),
+                "refresh", this.jwtUtil.createRefreshToken(this.jwtUtil.createToken(Tokens.REFRESH.getValue(), userVo)),
                 "userVo", user
         );
     }
