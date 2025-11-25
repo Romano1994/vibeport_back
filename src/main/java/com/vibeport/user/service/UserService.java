@@ -1,10 +1,13 @@
 package com.vibeport.user.service;
 
+import com.vibeport.auth.enums.Tokens;
+import com.vibeport.auth.utils.JwtUtil;
 import com.vibeport.mail.MailSMTP;
 import com.vibeport.user.mapper.UserMapper;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.builder.BuilderException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +20,11 @@ import java.util.UUID;
 public class UserService {
 
     private final UserMapper userMapper;
-
     private final MailSMTP mailSMTP;
-
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+
+    String TOKEN_PREFIX = "Bearer ";
 
     public UserVo getUserProfile(String userId) {
         // 사용자 프로필 정보를 조회하는 로직 구현
@@ -133,5 +137,24 @@ public class UserService {
 
         // 회원 정보 저장
         this.userMapper.insertUser(userVo);
+    }
+
+    public void validAccessToken(String auth) throws Exception {
+        if(auth == null || !auth.startsWith(TOKEN_PREFIX)) {
+            throw new BuilderException("there is no access token");
+        }
+
+        String accessToken = auth.replace(TOKEN_PREFIX, "");
+
+        this.jwtUtil.validToken(accessToken, Tokens.ACCESS.getValue());
+    }
+
+    public String reissue(String refresh) throws Exception {
+        UserVo userVo = new UserVo();
+        userVo.setEmail(this.jwtUtil.getEmailFromToken(refresh));
+        userVo.setUserNo(this.jwtUtil.getUserNoFromToken(refresh));
+        userVo.setRole(this.jwtUtil.getRoleFromToken(refresh));
+
+        return this.jwtUtil.createToken(Tokens.ACCESS.getValue(), userVo);
     }
 }

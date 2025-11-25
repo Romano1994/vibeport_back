@@ -1,12 +1,17 @@
 package com.vibeport.user.controller;
 
+import com.vibeport.auth.enums.Tokens;
 import com.vibeport.user.service.UserService;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -70,5 +75,44 @@ public class UserController {
         this.userService.join(userVo);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("reissue")
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws Exception{
+
+        System.out.println("=========reissue===========");
+
+        try {
+            Cookie[] cookies = request.getCookies();
+            String refresh = "";
+
+            if(!ObjectUtils.isEmpty(cookies)) {
+                for(Cookie cookie : cookies) {
+                    if(cookie.getName().equals(Tokens.REFRESH)) {
+                        refresh = cookie.getValue();
+                    }
+                }
+            }
+
+            if(ObjectUtils.isEmpty(refresh)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
+            }
+
+            String auth = request.getHeader("authorization");
+
+            // access 토큰 검사
+            this.userService.validAccessToken(auth);
+
+            String newAccess = this.userService.reissue(refresh);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("authorization", newAccess);
+
+            return ResponseEntity.ok().headers(headers).body("access reissue");
+        } catch(Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access reissue");
+        }
+
+
     }
 }
