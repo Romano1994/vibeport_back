@@ -34,6 +34,9 @@ dependencies {
 	implementation 'javax.mail:javax.mail-api:1.6.2'
 	implementation 'com.sun.mail:javax.mail:1.6.2'
 
+    // log4jdbc
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+    
 	compileOnly 'org.projectlombok:lombok'
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
