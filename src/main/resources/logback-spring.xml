@@ -17,11 +17,11 @@
     </appender>
 
     <springProfile name="default">
-        <logger name="com.vibeport" level="DEBUG" />
+        <logger name="com.vibeport" level="INFO" />
         <logger name="org.springframework" level="INFO" />
         <logger name="jdbc.sqlonly" level="OFF"/>
-        <logger name="jdbc.sqltiming" level="DEBUG"/>
-        <logger name="jdbc.audit" level="OFF"/>
+        <logger name="jdbc.sqltiming" level="OFF"/>
+        <logger name="jdbc.audit" level="INFO"/>
         <logger name="jdbc.resultset" level="OFF"/>
         <logger name="jdbc.connection" level="OFF"/>
         <root level="info">
