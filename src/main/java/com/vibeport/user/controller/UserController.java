@@ -80,15 +80,14 @@ public class UserController {
     @PostMapping("reissue")
     public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) throws Exception{
 
-        System.out.println("=========reissue===========");
-
         try {
             Cookie[] cookies = request.getCookies();
             String refresh = "";
 
             if(!ObjectUtils.isEmpty(cookies)) {
                 for(Cookie cookie : cookies) {
-                    if(cookie.getName().equals(Tokens.REFRESH)) {
+                    String cookieNm = cookie.getName();
+                    if(cookieNm.equals(Tokens.REFRESH.getValue())) {
                         refresh = cookie.getValue();
                     }
                 }
@@ -98,11 +97,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("");
             }
 
-            String auth = request.getHeader("authorization");
-
-            // access 토큰 검사
-            this.userService.validAccessToken(auth);
-
+            // refresh 토큰 검사
+            this.userService.validRefreshToken(refresh);
             String newAccess = this.userService.reissue(refresh);
 
             HttpHeaders headers = new HttpHeaders();
@@ -110,7 +106,7 @@ public class UserController {
 
             return ResponseEntity.ok().headers(headers).body("access reissue");
         } catch(Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access reissue");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("access reissue error");
         }
 
 

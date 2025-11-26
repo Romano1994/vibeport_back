@@ -1,5 +1,6 @@
 package com.vibeport.auth.utils;
 
+import com.vibeport.auth.enums.Tokens;
 import com.vibeport.user.vo.UserVo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -37,9 +38,9 @@ public class JwtUtil {
         Date now = new Date();
         Date exp;
 
-        if(subject.equals("access")) {
+        if(subject.equals(Tokens.ACCESS.getValue())) {
             exp = new Date(now.getTime() + accessExp);
-        } else if(subject.equals("refresh")) {
+        } else if(subject.equals(Tokens.REFRESH.getValue())) {
             exp = new Date(now.getTime() + refreshExp);
         } else {
             throw new RuntimeException("토큰 발급 에러");
@@ -81,7 +82,7 @@ public class JwtUtil {
         // TODO - 배포 시 strict로 변경 필요
         String sameSite = "Lax";
 
-        String category = "refresh";
+        String category = Tokens.REFRESH.getValue();
 
         return  String.format("%s=%s; Path=%s; Max-Age=%d; HttpOnly; Secure=%s; SameSite=%s",
                 category, value, "/", (int)refreshExp/1000, "false", sameSite);
@@ -107,15 +108,15 @@ public class JwtUtil {
     }
 
     public String getUserNoFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token).getBody().get("userNo", String.class);
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("userNo", String.class);
     }
 
     public String getRoleFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token).getBody().get("role", String.class);
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role", String.class);
     }
 
 
     public String getEmailFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token).getBody().get("email", String.class);
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("email", String.class);
     }
 }

@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String header = request.getHeader("Authorization");
+        String header = request.getHeader("authorization");
 
         if (header != null && header.startsWith("Bearer ")) {
             // TODO - access & refresh 한개씩 검사 필요

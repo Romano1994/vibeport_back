@@ -7,7 +7,7 @@ import com.vibeport.user.mapper.UserMapper;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.builder.BuilderException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +15,7 @@ import java.security.SecureRandom;
 import java.util.Map;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -139,16 +140,6 @@ public class UserService {
         this.userMapper.insertUser(userVo);
     }
 
-    public void validAccessToken(String auth) throws Exception {
-        if(auth == null || !auth.startsWith(TOKEN_PREFIX)) {
-            throw new BuilderException("there is no access token");
-        }
-
-        String accessToken = auth.replace(TOKEN_PREFIX, "");
-
-        this.jwtUtil.validToken(accessToken, Tokens.ACCESS.getValue());
-    }
-
     public String reissue(String refresh) throws Exception {
         UserVo userVo = new UserVo();
         userVo.setEmail(this.jwtUtil.getEmailFromToken(refresh));
@@ -156,5 +147,9 @@ public class UserService {
         userVo.setRole(this.jwtUtil.getRoleFromToken(refresh));
 
         return this.jwtUtil.createToken(Tokens.ACCESS.getValue(), userVo);
+    }
+
+    public void validRefreshToken(String refresh) {
+        this.jwtUtil.validToken(refresh, Tokens.REFRESH.getValue());
     }
 }
