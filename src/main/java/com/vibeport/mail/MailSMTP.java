@@ -47,4 +47,22 @@ public class MailSMTP {
 
         return Map.of("email", email, "code", verificationCode);
     }
+
+    public void sendArtistInfoMail(String artistInfo) {
+        Properties props = new Properties();
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(smtpFrom, smtpPwd);
+            }
+        });
+
+        //TODO - 메일 발송 로직 추가
+        try {
+
+        } catch (Exception e) {
+
+        }
+    }
 }
