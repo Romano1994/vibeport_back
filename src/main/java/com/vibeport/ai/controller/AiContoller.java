@@ -1,6 +1,6 @@
 package com.vibeport.ai.controller;
 
-import com.vibeport.ai.service.OpenAiService;
+import com.vibeport.ai.service.LangChainService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AiContoller {
 
-    private final OpenAiService aiService;
+    private final LangChainService aiService;
 
     @GetMapping("getConcertInfo")
     public void updateConcertInfo(HttpServletRequest request, HttpServletResponse response) throws Exception{
