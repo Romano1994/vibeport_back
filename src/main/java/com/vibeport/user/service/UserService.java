@@ -3,6 +3,7 @@ package com.vibeport.user.service;
 import com.vibeport.auth.enums.Tokens;
 import com.vibeport.auth.utils.JwtUtil;
 import com.vibeport.mail.MailSMTP;
+import com.vibeport.mail.service.TestEmailService;
 import com.vibeport.user.mapper.UserMapper;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -22,6 +24,7 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final MailSMTP mailSMTP;
+    private final TestEmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -49,24 +52,26 @@ public class UserService {
         }
 
         // 존재하는 이메일인지 확인
-        boolean isExistEmail = this.userMapper.checkEmailExists(email);
-
-        if(isExistEmail) {
-            // TODO: BuisinessException으로 변경 필요
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
-        }
+//        boolean isExistEmail = this.userMapper.checkEmailExists(email);
+//
+//        if(isExistEmail) {
+//            // TODO: BuisinessException으로 변경 필요
+//            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+//        }
 
         // 인증 코드 생성
         String verificationCode = this.generateVerificationCode();
 
+
         // 인증코드 이메일 전송
+        this.emailService.emailVerifSend(Arrays.asList("fhaksh0369@gmail.com"));
         Map<String, String> resultMap = this.mailSMTP.sendVerificationEmail(email, verificationCode);
 
         // 이전에 발송된 인증 코드 삭제
-        this.userMapper.deletePreVerifCode(email);
+        //this.userMapper.deletePreVerifCode(email);
 
          //인증 코드 저장
-        this.userMapper.insertEmailVerificationCodes(resultMap);
+        //this.userMapper.insertEmailVerificationCodes(resultMap);
 
         System.out.println("verificationCode==========" + verificationCode);
     }
@@ -94,9 +99,9 @@ public class UserService {
      */
     public void verifyCode(Map<String, Object> param) {
         // 이메일, 입력한 코드로 올바른 인증 코드인지 확인
-        boolean isRightCode = this.userMapper.selectIsRightCode(param);
+        //boolean isRightCode = this.userMapper.selectIsRightCode(param);
 
-        if(!isRightCode) {
+        if(false) {
             // TODO: BuisinessException으로 변경 필요
             throw new IllegalArgumentException("인증 코드가 올바르지 않습니다.");
         }
