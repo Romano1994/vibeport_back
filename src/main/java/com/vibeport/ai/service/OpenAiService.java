@@ -1,5 +1,10 @@
 package com.vibeport.ai.service;
 
+import com.openai.client.OpenAIClient;
+import com.openai.models.responses.Response;
+import com.openai.models.responses.ResponseCreateParams;
+import com.openai.models.responses.ResponseOutputText;
+import com.openai.models.responses.WebSearchTool;
 import com.vibeport.ai.mapper.AiMapper;
 import com.vibeport.ai.vo.ConcertVo;
 import com.vibeport.mail.MailSMTP;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +32,7 @@ public class OpenAiService {
     private final AiMapper aiMapper;
     private final MailSMTP mailSMTP;
     private final ChatModel chatModel;
+    private final OpenAIClient openAIClient;
 
     public void fetchAndNotifyNewConcerts() {
 
@@ -53,6 +60,7 @@ public class OpenAiService {
         // 1. System 메시지 구성
         // -----------------------
         String systemPrompt = """
+            ### 역할: SYSTEM
             당신은 내한 공연 전문 데이터 분석가입니다.
             아래 규칙을 절대적으로 준수하여 결과를 제공합니다.
            \s
@@ -81,9 +89,12 @@ public class OpenAiService {
         // 2. User 메시지 구성
         // -----------------------
         String userPrompt = """
+        ### 역할 : USER
         2026년 1월에 내한이 확정된 국적이 한국 이외의 가수 목록과\s
         공연 일자, 장소, 예매처를 알려줘.
        \s""";
+
+        String prompt1 = systemPrompt + "\n" + userPrompt;
 
         Message userMessage = new UserMessage(userPrompt);
 
@@ -97,6 +108,25 @@ public class OpenAiService {
         // -----------------------
         Generation answer = chatModel.call(prompt).getResult();
         String result = answer.getOutput().getText();
+
+        WebSearchTool webSearchTool = WebSearchTool.builder().build();
+        ResponseCreateParams params = ResponseCreateParams.builder()
+                        .model("GPT_5_1")
+                        .input(prompt1)
+                        .addTool(webSearchTool)
+                        .build();
+
+        Response response = openAIClient.responses().create(params);
+        String answer1 = response.output().stream()
+                        .flatMap(item -> item.message().stream())
+                        .flatMap(messate -> messate.content().stream())
+                        .flatMap(content -> content.outputText().stream())
+                        .map(ResponseOutputText::text)
+                        .collect(Collectors.joining("\n"));
+
+        System.out.println(answer1);
+
+        System.out.println();
 
         System.out.println(result);
         return resultList;

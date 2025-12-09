@@ -119,7 +119,7 @@ public class LangChainService {
 
         ChatLanguageModel model = GoogleAiGeminiChatModel.builder()
                 .apiKey(apiKey)
-                .modelName("gemini-1.5-pro")
+                .modelName("gemini-2.5-pro")
                 .temperature(0.0)
                 .build();
 
