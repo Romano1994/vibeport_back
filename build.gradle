@@ -73,6 +73,9 @@ dependencies {
     implementation 'dev.langchain4j:langchain4j:0.35.0'
     implementation 'dev.langchain4j:langchain4j-google-ai-gemini:0.35.0'
 
+    // 제미나이
+    implementation 'com.google.genai:google-genai:1.30.0'
+
     // AWS SES
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'software.amazon.awssdk:ses:2.29.46'
