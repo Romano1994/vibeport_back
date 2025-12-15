@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class ConcertVo {
 
-    private String artistNm;
-    private String concertAt;
-    private String venue;
-    private String tctSite;
-    private String tctOpenAt;
+    public String artistNm;
+    public String concertAt;
+    public String venue;
+    public String tctSite;
+    public String tctOpenAt;
 }
