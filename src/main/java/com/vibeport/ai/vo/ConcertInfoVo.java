@@ -1,0 +1,20 @@
+package com.vibeport.ai.vo;
+
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+public class ConcertInfoVo {
+    private int concertNo;
+    private String artistNm;
+    private int concertYear;
+    private int concertMonth;
+    private int concertDate;
+    private String concertTime;
+    private String venue;
+    private String tctSite;
+    private String tctOpenAt;
+    private String emailYn;
+    private LocalDateTime regTime;
+}
