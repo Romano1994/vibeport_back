@@ -2,7 +2,7 @@ package com.vibeport.ai.service;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.vibeport.ai.vo.ConcertVo;
+import com.vibeport.ai.vo.ConcertInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class HttpAiService {
     public void fetchAndNotifyNewConcerts() throws Exception {
 
         // openAi의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
-        List<ConcertVo> resultList = this.getConcerInfos();
+        List<ConcertInfoVo> resultList = this.getConcerInfos();
 
         if(!resultList.isEmpty()) {
             // 새로 추가된 콘서트 정보 DB에 저장
@@ -39,8 +39,8 @@ public class HttpAiService {
         }
     }
 
-    private List<ConcertVo> getConcerInfos() throws IOException, InterruptedException {
-        List<ConcertVo> resultList = new ArrayList<>();
+    private List<ConcertInfoVo> getConcerInfos() throws IOException, InterruptedException {
+        List<ConcertInfoVo> resultList = new ArrayList<>();
 
         System.out.println("ai search start");
 
