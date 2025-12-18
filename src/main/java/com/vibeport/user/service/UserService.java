@@ -64,7 +64,7 @@ public class UserService {
 
 
         // 인증코드 이메일 전송
-        this.emailService.emailVerifSend(Arrays.asList("fhaksh0369@gmail.com"));
+//        this.emailService.emailVerifSend(Arrays.asList("fhaksh0369@gmail.com"));
         Map<String, String> resultMap = this.mailSMTP.sendVerificationEmail(email, verificationCode);
 
         // 이전에 발송된 인증 코드 삭제

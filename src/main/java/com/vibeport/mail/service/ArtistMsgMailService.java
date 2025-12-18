@@ -13,14 +13,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TestEmailService {
+public class ArtistMsgMailService {
 
     @Value("${aws.ses.send-mail-from}")
     private String sender;
     private final SesClient sesClient;
     private final TemplateEngine templateEngine;
 
-    public void emailVerifSend(List<String> toList, NewsLetterVo letterVo) {
+    public void artistMsgEmailEnd(List<String> toList, NewsLetterVo letterVo) {
         Context context = new Context();
         context.setVariable("artistInfo", letterVo.getContent());
 
@@ -35,7 +35,5 @@ public class TestEmailService {
 
         // 이메일 발송
         sesClient.sendEmail(emailVo.toSendEmailRequest());
-
-
     }
 }
