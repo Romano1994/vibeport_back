@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibeport.ai.mapper.AiMapper">
+    <insert id="mergeArtist">
+        INSERT IGNORE INTO TB_ARTIST (
+            ARTIST_NM
+            , REG_TIME
+        ) VALUES (
+            #{artistNm}
+            , NOW()
+        )
+    </insert>
+
+    <insert id="mergeConcertInfo">
+        INSERT INTO TB_CONCERT_INFO (
+            ARTIST_NM
+            , CONCERT_YEAR
+            , CONCERT_MONTH
+            , CONCERT_DATE
+            , CONCERT_TIME
+            , VENUE
+            , TCT_SITE
+            , TCT_OPEN_AT
+            , EMAIL_YN
+            , POP_SCORE
+            , REG_TIME
+        ) VALUES (
+            #{artistNm}
+            , #{concertYear}
+            , #{concertMonth}
+            , #{concertDate}
+            , #{concertTime}
+            , #{venue}
+            , #{tctSite}
+            , #{tctOpenAt}
+            , #{emailYn}
+            , #{popScore}
+            , NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            ARTIST_NM = VALUES(ARTIST_NM)
+            , CONCERT_YEAR = VALUES(CONCERT_YEAR)
+            , CONCERT_MONTH = VALUES(CONCERT_MONTH)
+            , CONCERT_DATE = VALUES(CONCERT_DATE)
+            , CONCERT_TIME = VALUES(CONCERT_TIME)
+            , VENUE = VALUES(VENUE)
+            , TCT_SITE = VALUES(TCT_SITE)
+            , TCT_OPEN_AT = VALUES(TCT_OPEN_AT)
+    </insert>
+
+    <insert id="insertMailLog">
+        INSERT INTO TB_EMAIL_LOG (
+            SUBJECT
+            , CONTENT
+            , SENT_YN
+            , REG_TIME
+        ) VALUES (
+            #{subject}
+            , #{content}
+            , 'Y'
+            , NOW()
+        )
+    </insert>
+
+    <insert id="insertArtistMsg">
+        INSERT INTO TB_ARTIST_MSG (
+            CONTENT
+            , REG_TIME
+        ) VALUES (
+            #{content}
+            , NOW()
+        )
+    </insert>
+
+    <!-- language: xml -->
+    <select id="selectSavedList" parameterType="map" resultType="com.vibeport.ai.vo.ConcertInfoVo">
+        SELECT CONCERT_NO     AS concertNo
+            , ARTIST_NM       AS artistNm
+            , CONCERT_YEAR    AS concertYear
+            , CONCERT_MONTH   AS concertMonth
+            , CONCERT_DATE    AS concertDate
+            , CONCERT_TIME    AS concertTime
+            , VENUE           AS venue
+            , TCT_SITE        AS tctSite
+            , TCT_OPEN_AT     AS tctOpenAt
+            , EMAIL_YN        AS emailYn
+            , POP_SCORE       AS popScore
+            , REG_TIME        AS regTime
+        FROM TB_CONCERT_INFO
+        WHERE CONCAT(CONCERT_YEAR, '-', LPAD(CONCERT_MONTH, 2, '0'))
+                BETWEEN CONCAT(#{year}, '-', LPAD(#{month}, 2, '0'))
+                    AND DATE_FORMAT(
+                            DATE_ADD(
+                                STR_TO_DATE(CONCAT(#{year}, '-', LPAD(#{month}, 2, '0'), '-01'), '%Y-%m-%d'),
+                                INTERVAL 3 MONTH
+                            )
+                    , '%Y-%m')
+    </select>
+
+</mapper>
