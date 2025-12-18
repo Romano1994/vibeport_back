@@ -1,7 +1,7 @@
 package com.vibeport.ai.service;
 
 import com.vibeport.ai.mapper.AiMapper;
-import com.vibeport.ai.vo.ConcertVo;
+import com.vibeport.ai.vo.ConcertInfoVo;
 import com.vibeport.mail.MailSMTP;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.SystemMessage;
@@ -32,7 +32,7 @@ public class LangChainService {
     }
 
     public void fetchAndNotifyNewConcerts() {
-        List<ConcertVo> resultList = this.getConcerInfos();
+        List<ConcertInfoVo> resultList = this.getConcerInfos();
 
         if(!resultList.isEmpty()) {
             // 새로 추가된 콘서트 정보 DB에 저장
@@ -46,8 +46,8 @@ public class LangChainService {
         }
     }
 
-    private List<ConcertVo> getConcerInfos() {
-        List<ConcertVo> resultList = new ArrayList<>();
+    private List<ConcertInfoVo> getConcerInfos() {
+        List<ConcertInfoVo> resultList = new ArrayList<>();
 
         // -----------------------
         // 1. System 메시지 구성
@@ -101,10 +101,10 @@ public class LangChainService {
         return resultList;
     }
 
-    private void saveConcertInfos(List<ConcertVo> concertVoList) {
+    private void saveConcertInfos(List<ConcertInfoVo> concertVoList) {
         concertVoList.stream().filter(data -> {
             return !data.getArtistNm().isEmpty();
-        }).forEach(this.aiMapper::insertConcertInfo);
+        }).forEach(this.aiMapper::mergeConcertInfo);
     }
 
     private String getArtistInfo(String artistNm) {

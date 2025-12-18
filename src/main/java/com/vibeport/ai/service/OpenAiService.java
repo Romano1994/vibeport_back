@@ -6,7 +6,7 @@ import com.openai.models.responses.ResponseCreateParams;
 import com.openai.models.responses.ResponseOutputText;
 import com.openai.models.responses.WebSearchTool;
 import com.vibeport.ai.mapper.AiMapper;
-import com.vibeport.ai.vo.ConcertVo;
+import com.vibeport.ai.vo.ConcertInfoVo;
 import com.vibeport.mail.MailSMTP;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class OpenAiService {
     public void fetchAndNotifyNewConcerts() {
 
         // openAi의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
-        List<ConcertVo> resultList = this.getConcerInfos();
+        List<ConcertInfoVo> resultList = this.getConcerInfos();
 
         if(!resultList.isEmpty()) {
             // 새로 추가된 콘서트 정보 DB에 저장
@@ -51,8 +51,8 @@ public class OpenAiService {
         }
     }
 
-    private List<ConcertVo> getConcerInfos() {
-        List<ConcertVo> resultList = new ArrayList<>();
+    private List<ConcertInfoVo> getConcerInfos() {
+        List<ConcertInfoVo> resultList = new ArrayList<>();
 
         System.out.println("ai search start");
 
@@ -132,10 +132,10 @@ public class OpenAiService {
         return resultList;
     }
 
-    private void saveConcertInfos(List<ConcertVo> concertVoList) {
-        concertVoList.stream().filter(data -> {
-            return !data.getArtistNm().isEmpty();
-        }).forEach(this.aiMapper::insertConcertInfo);
+    private void saveConcertInfos(List<ConcertInfoVo> concertVoList) {
+        concertVoList.stream()
+                .filter(data -> data.getArtistNm() != null && !data.getArtistNm().isEmpty())
+                .forEach(this.aiMapper::mergeConcertInfo);
     }
 
     private String getArtistInfo(String artistNm) {
