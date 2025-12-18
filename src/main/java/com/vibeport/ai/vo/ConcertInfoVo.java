@@ -7,7 +7,8 @@ import java.time.LocalDateTime;
 @Data
 public class ConcertInfoVo {
     private int concertNo;
-    private String artistNm;
+    private String artistNmKor;
+    private String artistNmFor;
     private int concertYear;
     private int concertMonth;
     private int concertDate;
@@ -16,5 +17,6 @@ public class ConcertInfoVo {
     private String tctSite;
     private String tctOpenAt;
     private String emailYn;
+    private int popScore;
     private LocalDateTime regTime;
 }

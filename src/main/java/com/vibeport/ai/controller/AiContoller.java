@@ -1,5 +1,6 @@
 package com.vibeport.ai.controller;
 
+import com.vibeport.ai.service.GeminiService;
 import com.vibeport.ai.service.LangChainService;
 import com.vibeport.ai.service.PplxService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AiContoller {
 
-    private final PplxService aiService;
+    private final GeminiService aiService;
 
     @GetMapping("getConcertInfo")
     public void updateConcertInfo(HttpServletRequest request, HttpServletResponse response) throws Exception{
