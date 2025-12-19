@@ -44,7 +44,7 @@ public class OpenAiService {
             this.saveConcertInfos(resultList);
 
             // 새로 추가된 공연의 아티스트 설명
-            String artistInfo = this.getArtistInfo(resultList.getFirst().getArtistNm());
+            String artistInfo = this.getArtistInfo(resultList.getFirst().getArtistNmKor());
 
             // 아티스트 정보 메일 발송
             this.sendArtistInfoMail(artistInfo);
@@ -134,7 +134,8 @@ public class OpenAiService {
 
     private void saveConcertInfos(List<ConcertInfoVo> concertVoList) {
         concertVoList.stream()
-                .filter(data -> data.getArtistNm() != null && !data.getArtistNm().isEmpty())
+                .filter(data -> data.getArtistNmKor() != null && !data.getArtistNmKor().isEmpty())
+                .filter(data -> data.getArtistNmFor() != null && !data.getArtistNmFor().isEmpty())
                 .forEach(this.aiMapper::mergeConcertInfo);
     }
 
