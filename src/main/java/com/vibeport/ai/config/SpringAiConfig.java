@@ -21,7 +21,7 @@ public class SpringAiConfig {
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(
                         HttpClient.create()
-                                .responseTimeout(Duration.ofMinutes(10))
+                                .responseTimeout(Duration.ofMinutes(5))
                                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
                 ))
                 .codecs(configure -> configure.defaultCodecs().maxInMemorySize(1024 * 1024 * 10))
