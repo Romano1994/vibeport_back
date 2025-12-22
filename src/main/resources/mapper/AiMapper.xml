@@ -13,7 +13,8 @@
 
     <insert id="mergeConcertInfo">
         INSERT INTO TB_CONCERT_INFO (
-            ARTIST_NM
+            ARTIST_NM_KOR
+            , ARTIST_NM_FOR
             , CONCERT_YEAR
             , CONCERT_MONTH
             , CONCERT_DATE
@@ -25,7 +26,8 @@
             , POP_SCORE
             , REG_TIME
         ) VALUES (
-            #{artistNm}
+            #{artistNmKor}
+            , #{artistNmFor}
             , #{concertYear}
             , #{concertMonth}
             , #{concertDate}
@@ -38,7 +40,8 @@
             , NOW()
         )
         ON DUPLICATE KEY UPDATE
-            ARTIST_NM = VALUES(ARTIST_NM)
+            ARTIST_NM_KOR = VALUES(ARTIST_NM_KOR)
+            , ARTIST_NM_FOR = VALUES(ARTIST_NM_FOR)
             , CONCERT_YEAR = VALUES(CONCERT_YEAR)
             , CONCERT_MONTH = VALUES(CONCERT_MONTH)
             , CONCERT_DATE = VALUES(CONCERT_DATE)
@@ -72,10 +75,10 @@
         )
     </insert>
 
-    <!-- language: xml -->
     <select id="selectSavedList" parameterType="map" resultType="com.vibeport.ai.vo.ConcertInfoVo">
         SELECT CONCERT_NO     AS concertNo
-            , ARTIST_NM       AS artistNm
+            , ARTIST_NM_KOR   AS artistNmKor
+            , ARTIST_NM_FOR   AS artistNmFor
             , CONCERT_YEAR    AS concertYear
             , CONCERT_MONTH   AS concertMonth
             , CONCERT_DATE    AS concertDate
@@ -88,13 +91,8 @@
             , REG_TIME        AS regTime
         FROM TB_CONCERT_INFO
         WHERE CONCAT(CONCERT_YEAR, '-', LPAD(CONCERT_MONTH, 2, '0'))
-                BETWEEN CONCAT(#{year}, '-', LPAD(#{month}, 2, '0'))
-                    AND DATE_FORMAT(
-                            DATE_ADD(
-                                STR_TO_DATE(CONCAT(#{year}, '-', LPAD(#{month}, 2, '0'), '-01'), '%Y-%m-%d'),
-                                INTERVAL 3 MONTH
-                            )
-                    , '%Y-%m')
+                BETWEEN CONCAT(#{frYear}, '-', LPAD(#{frMonth}, 2, '0'))
+                    AND CONCAT(#{toYear}, '-', LPAD(#{toMonth}, 2, '0'))
     </select>
 
 </mapper>
