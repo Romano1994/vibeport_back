@@ -1,11 +1,98 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Artist Info</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIBEPORT - Artist Info</title>
+    <style>
+    </style>
 </head>
 <body>
-<pre th:text="${artistInfo}"></pre>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background: linear-gradient(to right, rgba(183, 227, 144, 0.80), rgba(248, 79, 78, 0.80));">
+    <tr>
+        <td align="center" style="padding:1vw 1vh;">
+            <!-- 메인 카드 컨테이너 -->
+            <table width="760" cellpadding="0" cellspacing="0" border="0" style="max-width:90vw;width:100%;background-color:#101212;border-radius:24px;border:1px solid rgba(183,227,144,0.22);box-shadow:0 18px 40px rgba(0,0,0,0.5);">
+                <tr>
+                    <td style="padding:20px 1.5vw 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#f5f5f5;">
+                        <!-- 헤더 영역: 로고 + Pill 태그 -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid rgba(255,255,255,0.05);padding-bottom:10px;">
+                            <tr>
+                                <td valign="middle">
+                                    <table cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td style="padding-left:10px;">
+                                                <div style="font-weight:800;letter-spacing:0.18em;font-size:3vw;max-font-size:20px;color:#f5f5f5;">VIBEPORT</div>
+                                                <div style="font-size:10px;min-font-size:7px;color:#b0b3b3;margin-top:8px;">AI CURATED ARTIST INSIGHTS</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td valign="middle" align="right">
+                                    <span style="padding:10px 30px;border-radius:999px;border:1px solid rgba(183,227,144,0.5);color:#b7e390;font-size:1.8vw;min-font-size:7px;text-transform:uppercase;letter-spacing:0.12em;background-color:rgba(24,27,27,0.9);align-items:center;gap:0.7vw;">
+                                        <span style="display:inline-block;width:1.2vw;min-width:6px;height:1.2vw;min-height:6px;border-radius:999px;background:#f84f4e;"></span>
+                                        <span>Artist Insight</span>
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <!-- 본문 영역 -->
+                <tr>
+                    <td style="padding:0 1.5vw 15px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Noto Sans KR',sans-serif;color:#f5f5f5;">
+                        <!-- 타이틀/서브타이틀 -->
+                        <table width="90%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+                            <tr>
+                                <td>
+                                    <div style="color:white;font-size:3.5vw;min-font-size:14px;font-weight:700;letter-spacing:-0.03em;">아티스트 리포트</div>
+                                    <div style="margin-top:8px;font-size:2.5vw;min-font-size:9px;color:#b0b3b3;line-height:1.6;">VIBEPORT AI가 생성한 아티스트 분석 내용을 확인하세요.</div>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- 카드 컨테이너 -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:15px;border-radius:18px;background-color:#090b0b;background-image:radial-gradient(circle at top left,rgba(183,227,144,0.1) 0,transparent 55%);border:1px solid rgba(255,255,255,0.04);box-shadow:0 14px 30px rgba(0,0,0,0.7);">
+                            <tr>
+                                <td style="padding:1vh 1.5vw 15px;">
+                                    <!-- 카드 헤더 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                        <tr>
+                                            <td valign="middle">
+                                                <div style="font-size:2vw;min-font-size:13px;font-weight:600;color:#b7e390;">Artist Info</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- Artist Info 본문 박스 -->
+                                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;">
+                                        <tr>
+                                            <td style="border-radius:12px;background-color:#0d0f0f;border:1px solid rgba(248,79,78,0.35);padding:1wh 3vw 18px;">
+                                                <div style="font-family:'NanumGothicBold';font-weight:500;font-size:10px;min-font-size:12px;line-height:1.8;color:#f5f5f5;word-spacing:normal;">
+                                                    <pre th:text="${artistInfo}"></pre>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <!-- 푸터 -->
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:15px;">
+                            <tr>
+                                <td valign="middle" style="font-size:2.3vw;min-font-size:10px;color:#b0b3b3;">
+                                    <span style="display:inline-block;width:1.6vw;min-width:8px;height:1.6vw;min-height:8px;border-radius:999px;background:#b7e390;margin-right:15px;"></span>
+                                    <span>실시간 생성을 기반으로 한 AI 콘텐츠입니다.</span>
+                                </td>
+                                <td valign="middle" align="right" style="font-size:2.3vw;min-font-size:10px;color:#b0b3b3;">
+                                    <div>Powered by <strong>VIBEPORT</strong></div>
+                                    <div>AI Artist Intelligence</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
 </body>
 </html>
-
