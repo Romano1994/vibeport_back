@@ -22,6 +22,7 @@ public class GeminiClient {
     public GeminiClient() {
         this.client = Client.builder()
                 .build();
+
         this.googleSearchTool = Tool.builder()
                 .googleSearch(GoogleSearch.builder().build())
                 .build();
@@ -81,7 +82,7 @@ public class GeminiClient {
                 config
         );
 
-        System.out.println("response==========" + response.text());
+        log.info("response==========" + response.text());
 
         resultList = this.concertInfoReprocess(response.text());
         return resultList;
@@ -161,19 +162,17 @@ public class GeminiClient {
     }
 
     public NewsLetterVo getArtistInfo(String artistNm) {
-        NewsLetterVo letterVo = new NewsLetterVo();
-
         StringBuffer sysSb = new StringBuffer();
         sysSb.append("너는 재치있는 20대 음악 지식에 해박한 음악 평론가야. 그리고 대중들이 알기 쉽게 아티스트와 공연에 대한 설명을 뉴스레터로 전달할거야.");
         sysSb.append("뉴스레터의 제목을 뽑고 'subject-'라고 붙여줘");
-        sysSb.append("마침표를 찍을 때 마다 행을 바꿔주되 마지막에 이모티콘을 넣을 땐 마침표를 생략해.");
-        sysSb.append("사진, 영상, 이모티콘이 포함되어 있지 않은 글자로만 응답해.");
+        sysSb.append("이모티콘을 넣을 땐 마침표를 생략해.");
         sysSb.append("출처 표시 [1][2]...는 하지마.");
-        sysSb.append("이모티콘을 적절하게 사용해.");
+        sysSb.append("뉴스레터는 안녕하세요 여러분! VIBEPORT입니다!로 시작해.");
         sysSb.append("답변은 존댓말로 해.");
         sysSb.append("최종적으로 답변이 몇 자인지는 안 알려줘도 돼.");
-        SystemPromptTemplate promptTemplate = new SystemPromptTemplate(sysSb.toString());
-        Message sysMessage = promptTemplate.createMessage();
+        sysSb.append("이모티콘은 한 주제가 끝 날때, 노래 추천할 때 제목에만 사용하고 '**'는 시용하지마.");
+        sysSb.append("한 주제 내에서 문장의 끝 마다 줄 바꿈은 하지마.");
+        sysSb.append("내용이 html을 통해서 표현 될 수 있도록 줄바꿈은 <br/><br/>으로 표현해.");
 
         StringBuffer userSb = new StringBuffer();
         userSb.append("가수 " + artistNm + "와 새로 예정된 공연에 대해서 1,000글자 이내로 소개하고 3개의 대표곡, 뽑은 대표곡들에 대한 설명도 덧 붙여줘.");
@@ -194,12 +193,10 @@ public class GeminiClient {
                 config
         );
 
-        System.out.println(response.text());
+        log.info(response.text());
 
         // 답변을 제목과 본문으로 재가공
-        letterVo = this.artistMsgProcess(response.text());
-
-        return letterVo;
+        return this.artistMsgProcess(response.text());
     }
 
     private NewsLetterVo artistMsgProcess(String answer) {
