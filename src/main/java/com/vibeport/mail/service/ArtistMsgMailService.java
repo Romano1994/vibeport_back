@@ -20,7 +20,7 @@ public class ArtistMsgMailService {
     private final SesClient sesClient;
     private final TemplateEngine templateEngine;
 
-    public void artistMsgEmailEnd(List<String> toList, NewsLetterVo letterVo) {
+    public void artistMsgEmailSend(List<String> toList, NewsLetterVo letterVo) {
         Context context = new Context();
         context.setVariable("artistInfo", letterVo.getContent());
 
