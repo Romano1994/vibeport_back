@@ -4,6 +4,7 @@ import com.vibeport.auth.enums.Tokens;
 import com.vibeport.auth.utils.JwtUtil;
 import com.vibeport.mail.MailSMTP;
 import com.vibeport.mail.service.TestEmailService;
+import com.vibeport.mail.service.VerifyMailService;
 import com.vibeport.user.mapper.UserMapper;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,7 +25,7 @@ import java.util.UUID;
 public class UserService {
 
     private final UserMapper userMapper;
-    private final MailSMTP mailSMTP;
+    private final VerifyMailService mailService;
     private final TestEmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
@@ -64,8 +66,7 @@ public class UserService {
 
 
         // 인증코드 이메일 전송
-//        this.emailService.emailVerifSend(Arrays.asList("fhaksh0369@gmail.com"));
-        Map<String, String> resultMap = this.mailSMTP.sendVerificationEmail(email, verificationCode);
+        this.mailService.verifyEmailSend(List.of(email), verificationCode);
 
         // 이전에 발송된 인증 코드 삭제
         //this.userMapper.deletePreVerifCode(email);
