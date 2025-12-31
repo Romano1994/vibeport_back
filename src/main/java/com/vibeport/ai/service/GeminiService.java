@@ -6,6 +6,7 @@ import com.vibeport.ai.client.GeminiClient;
 import com.vibeport.ai.mapper.AiMapper;
 import com.vibeport.ai.vo.ConcertInfoVo;
 import com.vibeport.ai.vo.NewsLetterVo;
+import com.vibeport.mail.service.ArtistMsgMailService;
 import com.vibeport.mail.service.TestEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ public class GeminiService {
 
     private final GeminiClient geminiClient;
     private final AiMapper aiMapper;
-    private final TestEmailService emailService;
+    private final ArtistMsgMailService emailService;
 
     public void fetchAndNotifyNewConcerts() throws Exception {
 
@@ -124,7 +125,7 @@ public class GeminiService {
 
     private void sendArtistInfoMail(NewsLetterVo letterVo) {
         List<String> tmpList = Arrays.asList("fhaksh0369@gmail.com", "sala9423@naver.com");
-        this.emailService.emailVerifSend(tmpList, letterVo);
+        this.emailService.artistMsgEmailSend(tmpList, letterVo);
 
         // 메일 로그 저장
         this.aiMapper.insertMailLog(letterVo);
