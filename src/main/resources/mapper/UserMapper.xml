@@ -17,7 +17,7 @@
             CODE
             , EMAIL
             , CNT
-            , REG_DATE
+            , REG_TIME
         ) VALUES (
             #{code}
             , #{email}
@@ -30,7 +30,7 @@
         )
     </insert>
 
-    <select id="selectIsRightCode" parameterType="map" resultType="boolean">
+    <select id="selectIsRightCode" parameterType="VerifCodeVo" resultType="boolean">
         /* UserMapper.selectIsRightCode 이메일 인증 코드가 올바른지 확인 */
         SELECT EXISTS (
             SELECT 1

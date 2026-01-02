@@ -4,6 +4,7 @@ import com.vibeport.auth.enums.Tokens;
 import com.vibeport.user.service.UserService;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
+import com.vibeport.user.vo.VerifCodeVo;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,9 +60,9 @@ public class UserController {
      * 인증 코드 확인
      */
     @PostMapping("verifyCode")
-    public ResponseEntity verifyCode(@RequestBody Map<String, Object> param) throws Exception{
+    public ResponseEntity verifyCode(@RequestBody VerifCodeVo codeVo) throws Exception{
         // 인증 코드 확인
-        this.userService.verifyCode(param);
+        this.userService.verifyCode(codeVo);
 
         return ResponseEntity.ok().build();
     }

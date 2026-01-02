@@ -1,6 +1,7 @@
 package com.vibeport.mail.service;
 
 import com.vibeport.mail.vo.EmailVo;
+import com.vibeport.user.vo.VerifCodeVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,15 +22,15 @@ public class VerificationMailService {
     private final SesClient sesClient;
     private final TemplateEngine templateEngine;
 
-    public void verifyEmailSend(List<String> toList, String verificationCode) {
+    public void verifyEmailSend(VerifCodeVo codeVo) {
         Context context = new Context();
-        context.setVariable("verifyCode", verificationCode);
+        context.setVariable("verifyCode", codeVo.getCode());
 
         String content = templateEngine.process("verificationMail", context);
 
         EmailVo emailVo = EmailVo.builder()
                 .from(sender)
-                .to(toList)
+                .to(codeVo.getEmailList())
                 .subject("VIBEPORT - 인증 이메일입니다.")
                 .content(content)
                 .build();

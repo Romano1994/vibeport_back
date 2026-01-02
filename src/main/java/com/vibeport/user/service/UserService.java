@@ -7,6 +7,7 @@ import com.vibeport.mail.service.VerificationMailService;
 import com.vibeport.user.mapper.UserMapper;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
+import com.vibeport.user.vo.VerifCodeVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -52,25 +53,28 @@ public class UserService {
         }
 
         // 존재하는 이메일인지 확인
-//        boolean isExistEmail = this.userMapper.checkEmailExists(email);
+        boolean isExistEmail = this.userMapper.checkEmailExists(email);
 //
-//        if(isExistEmail) {
-//            // TODO: BuisinessException으로 변경 필요
-//            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
-//        }
+        if(isExistEmail) {
+            // TODO: BuisinessException으로 변경 필요
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
 
         // 인증 코드 생성
         String verificationCode = this.generateVerificationCode();
 
-
         // 인증코드 이메일 전송
-        this.verificationMailService.verifyEmailSend(List.of(email), verificationCode);
+        VerifCodeVo codeVo = new VerifCodeVo();
+        codeVo.setCode(verificationCode);
+        codeVo.setEmailList(List.of(email));
+        codeVo.setEmail(email);
+        this.verificationMailService.verifyEmailSend(codeVo);
 
         // 이전에 발송된 인증 코드 삭제
-        //this.userMapper.deletePreVerifCode(email);
+        this.userMapper.deletePreVerifCode(email);
 
          //인증 코드 저장
-        //this.userMapper.insertEmailVerificationCodes(resultMap);
+        this.userMapper.insertEmailVerificationCodes(codeVo);
 
         System.out.println("verificationCode==========" + verificationCode);
     }
@@ -96,11 +100,11 @@ public class UserService {
     /*
      * 입력한 코드와 발송한 인증 코드 확인
      */
-    public void verifyCode(Map<String, Object> param) {
+    public void verifyCode(VerifCodeVo codeVo) {
         // 이메일, 입력한 코드로 올바른 인증 코드인지 확인
-        //boolean isRightCode = this.userMapper.selectIsRightCode(param);
+        boolean isRightCode = this.userMapper.selectIsRightCode(codeVo);
 
-        if(false) {
+        if(!isRightCode) {
             // TODO: BuisinessException으로 변경 필요
             throw new IllegalArgumentException("인증 코드가 올바르지 않습니다.");
         }

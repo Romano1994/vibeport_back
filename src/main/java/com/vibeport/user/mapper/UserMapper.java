@@ -2,6 +2,7 @@ package com.vibeport.user.mapper;
 
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
+import com.vibeport.user.vo.VerifCodeVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Map;
@@ -20,12 +21,12 @@ public interface UserMapper {
     /*
      * 인증 코드 DB 저장
      */
-    void insertEmailVerificationCodes(Map<String, String> param);
+    void insertEmailVerificationCodes(VerifCodeVo codeVo);
 
     /*
      * 올바른 인증 코드인지 확인
      */
-    boolean selectIsRightCode(Map<String, Object> param);
+    boolean selectIsRightCode(VerifCodeVo codeVo);
 
     /*
      * 사용자 저장
