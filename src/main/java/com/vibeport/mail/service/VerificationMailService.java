@@ -1,6 +1,5 @@
 package com.vibeport.mail.service;
 
-import com.vibeport.ai.vo.NewsLetterVo;
 import com.vibeport.mail.vo.EmailVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class VerifyMailService {
+public class VerificationMailService {
 
     @Value("${aws.ses.send-mail-from}")
     private String sender;
@@ -26,7 +25,7 @@ public class VerifyMailService {
         Context context = new Context();
         context.setVariable("verifyCode", verificationCode);
 
-        String content = templateEngine.process("email-verify", context);
+        String content = templateEngine.process("verificationMail", context);
 
         EmailVo emailVo = EmailVo.builder()
                 .from(sender)
