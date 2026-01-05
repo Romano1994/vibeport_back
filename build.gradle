@@ -60,7 +60,8 @@ dependencies {
     implementation 'com.sun.mail:javax.mail:1.6.2'
 
     // --- DB & 로그 ---
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    //runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
 
     // --- Spring AI / OpenAI ---
