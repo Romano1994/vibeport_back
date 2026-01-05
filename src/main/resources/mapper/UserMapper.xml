@@ -30,7 +30,7 @@
         )
     </insert>
 
-    <select id="selectIsRightCode" parameterType="VerifCodeVo" resultType="boolean">
+    <select id="selectIsRightCode" parameterType="com.vibeport.user.vo.VerifCodeVo" resultType="boolean">
         /* UserMapper.selectIsRightCode 이메일 인증 코드가 올바른지 확인 */
         SELECT EXISTS (
             SELECT 1
