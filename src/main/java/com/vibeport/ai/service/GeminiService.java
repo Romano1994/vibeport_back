@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -68,9 +69,6 @@ public class GeminiService {
             // 새로 추가된 공연의 아티스트 설명
             NewsLetterVo letterVo = this.geminiClient.getArtistInfo(artistNm);
 
-            // DB에 아티스트 정보 저장
-            this.aiMapper.insertArtistMsg(letterVo);
-
             log.info(String.valueOf(letterVo));
 
             // 아티스트 정보 메일 발송
@@ -116,6 +114,7 @@ public class GeminiService {
         return String.join("|", artistKor, artistFor, year, month, date);
     }
 
+    @Transactional
     private void saveConcertInfos(List<ConcertInfoVo> concertVoList) {
         concertVoList.stream()
                 .filter(data -> data.getArtistNmKor() != null && !data.getArtistNmKor().isEmpty())
@@ -123,6 +122,7 @@ public class GeminiService {
                 .forEach(this.aiMapper::mergeConcertInfo);
     }
 
+    @Transactional
     private void sendArtistInfoMail(NewsLetterVo letterVo) {
         List<String> tmpList = Arrays.asList("fhaksh0369@gmail.com", "sala9423@naver.com");
         this.emailService.artistMsgEmailSend(tmpList, letterVo);
