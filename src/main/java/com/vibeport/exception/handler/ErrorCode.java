@@ -41,10 +41,7 @@ public enum ErrorCode {
     /*
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류
      */
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500", "Internal Server Error"),
-    STORE_EXIST_ERROR(HttpStatus.CONFLICT, "409", "스토어가 존재합니다."),
-    STORE_REGISTRATION_ERROR(HttpStatus.CONFLICT, "409", "스토어 등록 중 오류가 발생하였습니다."),
-    NAVIGATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500", "경로를 찾는 중 오류가 발생하였습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "500", "Internal Server Error");
 
     private final HttpStatus status;
     private final String code;

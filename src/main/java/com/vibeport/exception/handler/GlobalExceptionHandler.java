@@ -36,7 +36,8 @@ public class GlobalExceptionHandler {
         log.error("handleBusinessException: {}", e.getMessage());
         final ErrorCode errorCode = ErrorCode.BAD_REQUEST;
         final ErrorResponse response = new ErrorResponse(errorCode);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus().value())
+                .body(new ErrorResponse(e.getStatus(), e.getError(), "-1", e.getMessage()));
     }
 
     /**

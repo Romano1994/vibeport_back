@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 /**
  * 시스템 오류가 아닌 업무로직에서 발생한 예외를 처리
  */
@@ -12,19 +14,30 @@ import lombok.ToString;
 @ToString
 public class BusinessException extends RuntimeException {
 
-	private final String code; 		// 코드
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 
-	private final String message; 	// 메세지
+	private final LocalDateTime timestamp = LocalDateTime.now();
 
-	public BusinessException(String message) {
+	private final int status; // HTTP status code
+
+	private final String error; // 에러
+
+	private final String message; // 메세지
+
+	public BusinessException(int status, String error, String message) {
 		super(message);
-		this.code = "";
+		this.status = status;
+		this.error = error;
 		this.message = message;
 	}
 
-	public BusinessException(String code, String message) {
+	public BusinessException(String message) {
 		super(message);
-		this.code = code;
+		this.status = 500;
+		this.error = "";
 		this.message = message;
 	}
 }
