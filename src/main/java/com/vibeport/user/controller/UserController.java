@@ -9,6 +9,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.reactor.ReactorEnvironmentPostProcessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +64,17 @@ public class UserController {
     public ResponseEntity verifyCode(@RequestBody VerifCodeVo codeVo) throws Exception{
         // 인증 코드 확인
         this.userService.verifyCode(codeVo);
+
+        return ResponseEntity.ok().build();
+    }
+
+    /*
+     * 이메일 등록
+     */
+    @PostMapping("registEmail")
+    public ResponseEntity registEmail(@RequestBody Map<String, Object> param) throws Exception {
+        // 이메일 등록
+        this.userService.registEmail(param);
 
         return ResponseEntity.ok().build();
     }

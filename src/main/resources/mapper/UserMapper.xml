@@ -6,7 +6,7 @@
         /* UserMapper.checkEmailExists 이미 가입된 이메일인지 확인 */
         SELECT EXISTS (
             SELECT 1
-            FROM TB_USER
+            FROM TB_EMAIL
             WHERE EMAIL = #{email}
         )
     </select>
@@ -70,4 +70,25 @@
         DELETE FROM TB_VERIF_CODE
         WHERE EMAIL = #{email}
     </delete>
+
+    <select id="isCorrectEmail" parameterType="Map" resultType="Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM TB_VERIF_CODE
+            WHERE EMAIL = #{email}
+              AND CODE = #{code}
+        )
+    </select>
+    
+    <insert id="insertEmail">
+        INSERT INTO TB_EMAIL (
+            EMAIL
+            , USE_YN
+            , REG_TIME
+        ) VALUES (
+            #{email}
+            , 'Y'
+            , NOW()
+        )
+    </insert>
 </mapper>

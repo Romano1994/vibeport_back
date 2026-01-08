@@ -34,4 +34,8 @@ public interface UserMapper {
     void insertUser(UserVo userVo);
 
     void deletePreVerifCode(String email);
+
+    boolean isCorrectEmail(Map<String, Object> param);
+
+    void insertEmail(Map<String, Object> param);
 }

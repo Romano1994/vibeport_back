@@ -2,6 +2,7 @@ package com.vibeport.user.service;
 
 import com.vibeport.auth.enums.Tokens;
 import com.vibeport.auth.utils.JwtUtil;
+import com.vibeport.exception.handler.BusinessException;
 import com.vibeport.mail.service.TestEmailService;
 import com.vibeport.mail.service.VerificationMailService;
 import com.vibeport.user.mapper.UserMapper;
@@ -57,8 +58,11 @@ public class UserService {
 //
         if(isExistEmail) {
             // TODO: BuisinessException으로 변경 필요
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new BusinessException("이미 가입된 이메일입니다.");
         }
+
+        // 이전에 발송된 인증 코드 삭제
+        this.userMapper.deletePreVerifCode(email);
 
         // 인증 코드 생성
         String verificationCode = this.generateVerificationCode();
@@ -69,9 +73,6 @@ public class UserService {
         codeVo.setEmailList(List.of(email));
         codeVo.setEmail(email);
         this.verificationMailService.verifyEmailSend(codeVo);
-
-        // 이전에 발송된 인증 코드 삭제
-        this.userMapper.deletePreVerifCode(email);
 
          //인증 코드 저장
         this.userMapper.insertEmailVerificationCodes(codeVo);
@@ -131,7 +132,7 @@ public class UserService {
         boolean isExistEmail = this.userMapper.checkEmailExists(email);
         if(isExistEmail) {
             // TODO: BuisinessException으로 변경 필요
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new BusinessException("이미 가입된 이메일입니다.");
         }
 
         // 회원 ID는 이메일 주소의 '@' 앞부분으로 설정
@@ -159,5 +160,18 @@ public class UserService {
 
     public void validRefreshToken(String refresh) {
         this.jwtUtil.validToken(refresh, Tokens.REFRESH.getValue());
+    }
+
+
+    public void registEmail(Map<String, Object> param) throws Exception {
+        // 인증시 사용한 이메일인지 확인
+        boolean isCorrectEmail = this.userMapper.isCorrectEmail(param);
+
+        if(!isCorrectEmail) {
+            throw new IllegalArgumentException("이메일 주소를 확인해주세요.");
+        }
+
+        // 이메일 등록
+        this.userMapper.insertEmail(param);
     }
 }
