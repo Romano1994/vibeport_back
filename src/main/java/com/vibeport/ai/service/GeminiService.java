@@ -28,52 +28,57 @@ public class GeminiService {
 
     public void fetchAndNotifyNewConcerts() throws Exception {
 
+        NewsLetterVo letterVo = new NewsLetterVo();
+        letterVo.setContent("content");
+        letterVo.setSubject("subject");
+        this.sendArtistInfoMail(letterVo);
+
         // 오늘의 년, 월
-        LocalDate today = LocalDate.now();
-        int beginYear = today.plusMonths(1).getYear();
-        int beginMonth = today.plusMonths(1).getMonthValue();
-        int endYear = today.plusMonths(2).getYear();
-        int endMonth = today.plusMonths(2).getMonthValue();
-        int year = 0;
-        int month = 0;
-        List<ConcertInfoVo> resultList = new ArrayList<>();
-
-        Map<String, Object> paramMap = Map.of("frYear", beginYear, "frMonth", beginMonth,
-                "toYear", endYear, "toMonth", endMonth);
-
-        for(int i = 0; i < 1; i++) {
-            today = today.plusMonths(1);
-            year = today.getYear();
-            month = today.getMonthValue();
-
-            // openAi의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
-            resultList.addAll(this.geminiClient.getConcertInfos(year, month));
-        }
-
-        log.info("result=========================");
-        resultList.forEach(data -> log.info(String.valueOf(data)));
-
-        // 저장된 해당 년월 콘서트 정보 가져옴
-        List<ConcertInfoVo> savedConcertList = this.aiMapper.selectSavedList(paramMap);
-
-        // 저장되지 않은 새로운 콘서트 정보
-        List<ConcertInfoVo> newConcertList = this.getNewConcertList(resultList, savedConcertList);
-        log.info("newConcertList=========================");
-        newConcertList.forEach(data -> log.info(String.valueOf(data)));
-
-        if(!newConcertList.isEmpty()) {
-            // 새로 추가된 콘서트 정보 DB에 저장
-            this.saveConcertInfos(newConcertList);
-
-            String artistNm = newConcertList.getFirst().getArtistNmKor() + " (" + newConcertList.getFirst().getArtistNmFor() + ")";
-            // 새로 추가된 공연의 아티스트 설명
-            NewsLetterVo letterVo = this.geminiClient.getArtistInfo(artistNm);
-
-            log.info(String.valueOf(letterVo));
-
-            // 아티스트 정보 메일 발송
-            this.sendArtistInfoMail(letterVo);
-        }
+//        LocalDate today = LocalDate.now();
+//        int beginYear = today.plusMonths(1).getYear();
+//        int beginMonth = today.plusMonths(1).getMonthValue();
+//        int endYear = today.plusMonths(2).getYear();
+//        int endMonth = today.plusMonths(2).getMonthValue();
+//        int year = 0;
+//        int month = 0;
+//        List<ConcertInfoVo> resultList = new ArrayList<>();
+//
+//        Map<String, Object> paramMap = Map.of("frYear", beginYear, "frMonth", beginMonth,
+//                "toYear", endYear, "toMonth", endMonth);
+//
+//        for(int i = 0; i < 1; i++) {
+//            today = today.plusMonths(1);
+//            year = today.getYear();
+//            month = today.getMonthValue();
+//
+//            // openAi의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
+//            resultList.addAll(this.geminiClient.getConcertInfos(year, month));
+//        }
+//
+//        log.info("result=========================");
+//        resultList.forEach(data -> log.info(String.valueOf(data)));
+//
+//        // 저장된 해당 년월 콘서트 정보 가져옴
+//        List<ConcertInfoVo> savedConcertList = this.aiMapper.selectSavedList(paramMap);
+//
+//        // 저장되지 않은 새로운 콘서트 정보
+//        List<ConcertInfoVo> newConcertList = this.getNewConcertList(resultList, savedConcertList);
+//        log.info("newConcertList=========================");
+//        newConcertList.forEach(data -> log.info(String.valueOf(data)));
+//
+//        if(!newConcertList.isEmpty()) {
+//            // 새로 추가된 콘서트 정보 DB에 저장
+//            this.saveConcertInfos(newConcertList);
+//
+//            String artistNm = newConcertList.getFirst().getArtistNmKor() + " (" + newConcertList.getFirst().getArtistNmFor() + ")";
+//            // 새로 추가된 공연의 아티스트 설명
+//            NewsLetterVo letterVo = this.geminiClient.getArtistInfo(artistNm);
+//
+//            log.info(String.valueOf(letterVo));
+//
+//            // 아티스트 정보 메일 발송
+//            this.sendArtistInfoMail(letterVo);
+//        }
     }
 
     private List<ConcertInfoVo> getNewConcertList(List<ConcertInfoVo> resultList, List<ConcertInfoVo> savedConcertList) {
@@ -124,8 +129,11 @@ public class GeminiService {
 
     @Transactional
     private void sendArtistInfoMail(NewsLetterVo letterVo) {
-        List<String> tmpList = Arrays.asList("fhaksh0369@gmail.com", "sala9423@naver.com");
-        this.emailService.artistMsgEmailSend(tmpList, letterVo);
+        // 이메일 발송 목록 조회
+        List<String> emailList = this.aiMapper.selectEmailList();
+
+        // 이메일 발송
+        this.emailService.artistMsgEmailSend(emailList, letterVo);
 
         // 메일 로그 저장
         this.aiMapper.insertMailLog(letterVo);

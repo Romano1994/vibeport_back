@@ -95,4 +95,9 @@
                     AND CONCAT(#{toYear}, '-', LPAD(#{toMonth}, 2, '0'))
     </select>
 
+    <select id="selectEmailList" resultType="String">
+        SELECT A.EMAIL
+        FROM TB_EMAIL AS A
+        WHERE USE_YN = 'Y'
+    </select>
 </mapper>

@@ -16,4 +16,6 @@ public interface AiMapper {
     void insertArtistMsg(NewsLetterVo letterVo);
 
     List<ConcertInfoVo> selectSavedList(Map<String, Object> paramMap);
+
+    List<String> selectEmailList();
 }
