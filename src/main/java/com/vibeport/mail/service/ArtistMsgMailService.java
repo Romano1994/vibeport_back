@@ -1,6 +1,6 @@
 package com.vibeport.mail.service;
 
-import com.vibeport.ai.vo.NewsLetterVo;
+import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.mail.vo.EmailVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ public class ArtistMsgMailService {
     private final SesClient sesClient;
     private final TemplateEngine templateEngine;
 
-    public void artistMsgEmailSend(List<String> toList, NewsLetterVo letterVo) {
+    public void artistMsgEmailSend(List<String> toList, ArtistMsgVo letterVo) {
         Context context = new Context();
         context.setVariable("artistInfo", letterVo.getContent());
 

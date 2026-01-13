@@ -54,23 +54,23 @@
     <insert id="insertMailLog">
         INSERT INTO TB_EMAIL_LOG (
             SUBJECT
-            , CONTENT
-            , SENT_YN
+            , EMAIL
             , REG_TIME
         ) VALUES (
             #{subject}
-            , #{content}
-            , 'Y'
+            , #{email}
             , NOW()
         )
     </insert>
 
     <insert id="insertArtistMsg">
         INSERT INTO TB_ARTIST_MSG (
-            CONTENT
+            SUBJECT
+            , CONTENT
             , REG_TIME
         ) VALUES (
-            #{content}
+            #{subject}
+            , #{content}
             , NOW()
         )
     </insert>

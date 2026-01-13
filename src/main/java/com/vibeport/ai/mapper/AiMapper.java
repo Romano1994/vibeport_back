@@ -1,7 +1,7 @@
 package com.vibeport.ai.mapper;
 
 import com.vibeport.ai.vo.ConcertInfoVo;
-import com.vibeport.ai.vo.NewsLetterVo;
+import com.vibeport.ai.vo.ArtistMsgVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -11,9 +11,9 @@ import java.util.Map;
 public interface AiMapper {
     void mergeConcertInfo(ConcertInfoVo data);
 
-    void insertMailLog(NewsLetterVo letterVo);
+    void insertMailLog(Map<String, Object> paramMap);
 
-    void insertArtistMsg(NewsLetterVo letterVo);
+    void insertArtistMsg(ArtistMsgVo artistMsgVo);
 
     List<ConcertInfoVo> selectSavedList(Map<String, Object> paramMap);
 

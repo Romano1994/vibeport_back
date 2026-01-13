@@ -1,7 +1,7 @@
 package com.vibeport.ai.client;
 
 import com.vibeport.ai.vo.ConcertInfoVo;
-import com.vibeport.ai.vo.NewsLetterVo;
+import com.vibeport.ai.vo.ArtistMsgVo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.Message;
@@ -10,8 +10,6 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -160,8 +158,8 @@ public class PplxClient {
         return resultList;
     }
 
-    public NewsLetterVo getArtistInfo(String artistNm) {
-        NewsLetterVo letterVo = new NewsLetterVo();
+    public ArtistMsgVo getArtistInfo(String artistNm) {
+        ArtistMsgVo letterVo = new ArtistMsgVo();
 
         StringBuffer sysSb = new StringBuffer();
         sysSb.append("너는 재치있는 20대 음악 지식에 해박한 음악 평론가야. 그리고 대중들이 알기 쉽게 아티스트와 공연에 대한 설명을 뉴스레터로 전달할거야.");
@@ -194,8 +192,8 @@ public class PplxClient {
         return letterVo;
     }
 
-    private NewsLetterVo artistMsgProcess(String answer) {
-        NewsLetterVo letterVo = new NewsLetterVo();
+    private ArtistMsgVo artistMsgProcess(String answer) {
+        ArtistMsgVo letterVo = new ArtistMsgVo();
 
         String subject = "";
         String content = "";

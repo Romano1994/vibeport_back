@@ -1,16 +1,12 @@
 package com.vibeport.ai.service;
 
-import com.google.genai.Client;
-import com.google.genai.types.*;
 import com.vibeport.ai.client.GeminiClient;
 import com.vibeport.ai.mapper.AiMapper;
 import com.vibeport.ai.vo.ConcertInfoVo;
-import com.vibeport.ai.vo.NewsLetterVo;
+import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.mail.service.ArtistMsgMailService;
-import com.vibeport.mail.service.TestEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,12 +63,15 @@ public class GeminiService {
 
             String artistNm = newConcertList.getFirst().getArtistNmKor() + " (" + newConcertList.getFirst().getArtistNmFor() + ")";
             // 새로 추가된 공연의 아티스트 설명
-            NewsLetterVo letterVo = this.geminiClient.getArtistInfo(artistNm);
+            ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(artistNm);
 
-            log.info(String.valueOf(letterVo));
+            log.info(String.valueOf(artistMsgVo));
+
+            // 아티스트 설명 DB저장
+            this.aiMapper.insertArtistMsg(artistMsgVo);
 
             // 아티스트 정보 메일 발송
-            this.sendArtistInfoMail(letterVo);
+            this.sendArtistInfoMail(artistMsgVo);
         }
     }
 
@@ -123,14 +122,19 @@ public class GeminiService {
     }
 
     @Transactional
-    private void sendArtistInfoMail(NewsLetterVo letterVo) {
+    private void sendArtistInfoMail(ArtistMsgVo artistMsgVo) {
         // 이메일 발송 목록 조회
         List<String> emailList = this.aiMapper.selectEmailList();
 
         // 이메일 발송
-        this.emailService.artistMsgEmailSend(emailList, letterVo);
+        this.emailService.artistMsgEmailSend(emailList, artistMsgVo);
 
         // 메일 로그 저장
-        this.aiMapper.insertMailLog(letterVo);
+        emailList.forEach(data -> {
+            Map<String, Object> paramMap = Map.of("email", data
+            , "subject", artistMsgVo.getSubject());
+
+            this.aiMapper.insertMailLog(paramMap);
+        });
     }
 }

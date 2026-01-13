@@ -3,7 +3,7 @@ package com.vibeport.ai.vo;
 import lombok.Data;
 
 @Data
-public class NewsLetterVo {
+public class ArtistMsgVo {
     private String subject;
     private String content;
 }

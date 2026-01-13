@@ -4,16 +4,10 @@ import com.vibeport.ai.client.GeminiClient;
 import com.vibeport.ai.client.PplxClient;
 import com.vibeport.ai.mapper.AiMapper;
 import com.vibeport.ai.vo.ConcertInfoVo;
-import com.vibeport.ai.vo.NewsLetterVo;
+import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.mail.service.TestEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.model.Generation;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.chat.prompt.SystemPromptTemplate;
-import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -126,10 +120,10 @@ public class PplxService {
                 .forEach(this.aiMapper::mergeConcertInfo);
     }
 
-    private void sendArtistInfoMail(NewsLetterVo letterVo) {
+    private void sendArtistInfoMail(ArtistMsgVo letterVo) {
         this.emailService.emailVerifSend(Arrays.asList("sala9423@naver.com"), letterVo);
 
         // 메일 로그 저장
-        this.aiMapper.insertMailLog(letterVo);
+//        this.aiMapper.insertMailLog(letterVo);
     }
 }
