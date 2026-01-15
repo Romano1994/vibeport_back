@@ -19,4 +19,5 @@ public class ConcertInfoVo {
     private String emailYn;
     private int popScore;
     private LocalDateTime regTime;
+    private String sendYn;
 }
