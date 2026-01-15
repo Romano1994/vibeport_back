@@ -65,32 +65,46 @@
 
     <insert id="insertArtistMsg">
         INSERT INTO TB_ARTIST_MSG (
-            SUBJECT
+            ARTIST_NM_KOR
+            , CONCERT_YEAR
+            , CONCERT_MONTH
+            , CONCERT_DATE
+            , SUBJECT
             , CONTENT
             , REG_TIME
         ) VALUES (
-            #{subject}
+            #{artistNmKor}
+            , #{concertYear}
+            , #{concertMonth}
+            , #{concertDate}
+            , #{subject}
             , #{content}
             , NOW()
         )
     </insert>
 
     <select id="selectSavedList" parameterType="map" resultType="com.vibeport.ai.vo.ConcertInfoVo">
-        SELECT CONCERT_NO     AS concertNo
-            , ARTIST_NM_KOR   AS artistNmKor
-            , ARTIST_NM_FOR   AS artistNmFor
-            , CONCERT_YEAR    AS concertYear
-            , CONCERT_MONTH   AS concertMonth
-            , CONCERT_DATE    AS concertDate
-            , CONCERT_TIME    AS concertTime
-            , VENUE           AS venue
-            , TCT_SITE        AS tctSite
-            , TCT_OPEN_AT     AS tctOpenAt
-            , EMAIL_YN        AS emailYn
-            , POP_SCORE       AS popScore
-            , REG_TIME        AS regTime
-        FROM TB_CONCERT_INFO
-        WHERE CONCAT(CONCERT_YEAR, '-', LPAD(CONCERT_MONTH, 2, '0'))
+        SELECT A.CONCERT_NO     AS concertNo
+            , A.ARTIST_NM_KOR   AS artistNmKor
+            , A.ARTIST_NM_FOR   AS artistNmFor
+            , A.CONCERT_YEAR    AS concertYear
+            , A.CONCERT_MONTH   AS concertMonth
+            , A.CONCERT_DATE    AS concertDate
+            , A.CONCERT_TIME    AS concertTime
+            , A.VENUE           AS venue
+            , A.TCT_SITE        AS tctSite
+            , A.TCT_OPEN_AT     AS tctOpenAt
+            , A.EMAIL_YN        AS emailYn
+            , A.POP_SCORE       AS popScore
+            , A.REG_TIME        AS regTime
+            , B.SEND_YN         AS sendYn
+        FROM TB_CONCERT_INFO AS A
+        LEFT OUTER JOIN TB_ARTIST_MSG AS B
+          ON A.ARTIST_NM_KOR = B.ARTIST_NM_KOR
+         AND A.CONCERT_YEAR = B.CONCERT_YEAR
+         AND A.CONCERT_MONTH = B.CONCERT_MONTH
+         AND A.CONCERT_DATE = B.CONCERT_DATE
+        WHERE CONCAT(A.CONCERT_YEAR, '-', LPAD(A.CONCERT_MONTH, 2, '0'))
                 BETWEEN CONCAT(#{frYear}, '-', LPAD(#{frMonth}, 2, '0'))
                     AND CONCAT(#{toYear}, '-', LPAD(#{toMonth}, 2, '0'))
     </select>
@@ -100,4 +114,13 @@
         FROM TB_EMAIL AS A
         WHERE USE_YN = 'Y'
     </select>
+
+    <update id="updateSendYn">
+        UPDATE TB_ARTIST_MSG
+           SET SEND_YN = 'Y'
+         WHERE ARTIST_NM_KOR = #{artistNmKor}
+           AND CONCERT_YEAR = #{concertYear}
+           AND CONCERT_MONTH = #{concertMonth}
+           AND CONCERT_DATE = #{concertDate}
+    </update>
 </mapper>
