@@ -57,8 +57,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000",
-        "http://13.211.47.98"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://13.211.47.98",
+                "http://13.211.47.98:8081",
+                "http://vibeport.live",
+                "https://vibeport.live"
+        ));
         configuration.addAllowedMethod("*"); // 모든 HTTP 메소드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.addExposedHeader("authorization");
