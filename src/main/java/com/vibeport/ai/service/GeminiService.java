@@ -28,8 +28,8 @@ public class GeminiService {
         LocalDate today = LocalDate.now();
         int beginYear = today.plusMonths(1).getYear();
         int beginMonth = today.plusMonths(1).getMonthValue();
-        int endYear = today.plusMonths(2).getYear();
-        int endMonth = today.plusMonths(2).getMonthValue();
+        int endYear = today.plusMonths(3).getYear();
+        int endMonth = today.plusMonths(3).getMonthValue();
         int year = 0;
         int month = 0;
         List<ConcertInfoVo> resultList = new ArrayList<>();
@@ -37,56 +37,73 @@ public class GeminiService {
         Map<String, Object> paramMap = Map.of("frYear", beginYear, "frMonth", beginMonth,
                 "toYear", endYear, "toMonth", endMonth);
 
+        // 이번 달 이후의 3개월의 콘서트 정보를 가져 옴
         for(int i = 0; i < 1; i++) {
             today = today.plusMonths(1);
             year = today.getYear();
             month = today.getMonthValue();
 
-            // openAi의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
+            // Gemini의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
             resultList.addAll(this.geminiClient.getConcertInfos(year, month));
         }
-
-        log.info("result=========================");
-        resultList.forEach(data -> log.info(String.valueOf(data)));
 
         // 저장된 해당 년월 콘서트 정보 가져옴
         List<ConcertInfoVo> savedConcertList = this.aiMapper.selectSavedList(paramMap);
 
         // 저장되지 않은 새로운 콘서트 정보
         List<ConcertInfoVo> newConcertList = this.getNewConcertList(resultList, savedConcertList);
-        log.info("newConcertList=========================");
-        newConcertList.forEach(data -> log.info(String.valueOf(data)));
 
+        ConcertInfoVo firstConcert;
         if(!newConcertList.isEmpty()) {
-            // 새로 추가된 콘서트 정보 DB에 저장
+            System.out.println("========================new===========");
+            // 새로 추가된 콘서트 정보들 DB에 저장
             this.saveConcertInfos(newConcertList);
 
-            String artistNm = newConcertList.getFirst().getArtistNmKor() + " (" + newConcertList.getFirst().getArtistNmFor() + ")";
-            // 새로 추가된 공연의 아티스트 설명
-            ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(artistNm);
+            firstConcert = newConcertList.getFirst();
+        } else { // 새로 추가된 콘서트 정보가 없을 경우
+            System.out.println("========================saved===========");
+            // pop score의 역순으로 정렬 (이미 발송된 건 제외하고, 널 체크 포함)
+            firstConcert = savedConcertList.stream()
+                    .filter(data -> data.getSendYn() == null || data.getSendYn().isEmpty())
+                    .sorted(Comparator.comparing(ConcertInfoVo::getPopScore).reversed())
+                    .findFirst().get();
 
-            log.info(String.valueOf(artistMsgVo));
-
-            // 아티스트 설명 DB저장
-            this.aiMapper.insertArtistMsg(artistMsgVo);
-
-            // 아티스트 정보 메일 발송
-            this.sendArtistInfoMail(artistMsgVo);
         }
+
+        // 공연의 아티스트 설명
+        ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(firstConcert);
+
+        // 아티스트 설명 DB저장
+        this.aiMapper.insertArtistMsg(artistMsgVo);
+
+        // 아티스트 정보 메일 발송
+        this.sendArtistInfoMail(artistMsgVo);
+
+        // 메일 전송 여부 업데이트
+        this.aiMapper.updateSendYn(artistMsgVo);
     }
 
     private List<ConcertInfoVo> getNewConcertList(List<ConcertInfoVo> resultList, List<ConcertInfoVo> savedConcertList) {
         List<ConcertInfoVo> newConcertList = new ArrayList<>();
 
         if (!resultList.isEmpty()) {
-            Set<String> savedKeySet = new HashSet<>();
+            // 한글 아티스트명 기준 키 셋
+            Set<String> savedKeySetKor = new HashSet<>();
+            // 영문 아티스트명 기준 키 셋
+            Set<String> savedKeySetFor = new HashSet<>();
+
             for (ConcertInfoVo savedVo : savedConcertList) {
-                savedKeySet.add(buildConcertKey(savedVo));
+                savedKeySetKor.add(buildConcertKeyByKor(savedVo));
+                savedKeySetFor.add(buildConcertKeyByFor(savedVo));
             }
 
             List<ConcertInfoVo> filteredList = new ArrayList<>();
             for (ConcertInfoVo vo : resultList) {
-                if (!savedKeySet.contains(buildConcertKey(vo))) {
+                // 한글명 또는 영문명 중 하나라도 매칭되면 같은 콘서트로 간주
+                boolean isDuplicate = savedKeySetKor.contains(buildConcertKeyByKor(vo))
+                        || savedKeySetFor.contains(buildConcertKeyByFor(vo));
+
+                if (!isDuplicate) {
                     filteredList.add(vo);
                 }
             }
@@ -99,18 +116,30 @@ public class GeminiService {
         return newConcertList;
     }
 
-    private String buildConcertKey(ConcertInfoVo vo) {
+    private String buildConcertKeyByKor(ConcertInfoVo vo) {
         if (vo == null) {
             return "";
         }
 
         String artistKor = vo.getArtistNmKor() == null ? "" : vo.getArtistNmKor().trim();
+        String year = Objects.toString(vo.getConcertYear(), "0");
+        String month = Objects.toString(vo.getConcertMonth(), "0");
+        String date = Objects.toString(vo.getConcertDate(), "0");
+
+        return String.join("|", artistKor, year, month, date);
+    }
+
+    private String buildConcertKeyByFor(ConcertInfoVo vo) {
+        if (vo == null) {
+            return "";
+        }
+
         String artistFor = vo.getArtistNmFor() == null ? "" : vo.getArtistNmFor().trim();
         String year = Objects.toString(vo.getConcertYear(), "0");
         String month = Objects.toString(vo.getConcertMonth(), "0");
         String date = Objects.toString(vo.getConcertDate(), "0");
 
-        return String.join("|", artistKor, artistFor, year, month, date);
+        return String.join("|", artistFor, year, month, date);
     }
 
     @Transactional

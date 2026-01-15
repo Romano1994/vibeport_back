@@ -159,7 +159,9 @@ public class GeminiClient {
         return resultList;
     }
 
-    public ArtistMsgVo getArtistInfo(String artistNm) {
+    public ArtistMsgVo getArtistInfo(ConcertInfoVo concertInfoVo) {
+        String artistNm = concertInfoVo.getArtistNmKor() + " (" + concertInfoVo.getArtistNmFor() + ")";
+
         StringBuffer sysSb = new StringBuffer();
         sysSb.append("너는 재치있는 20대 음악 지식에 해박한 음악 평론가야. 그리고 대중들이 알기 쉽게 아티스트와 공연에 대한 설명을 뉴스레터로 전달할거야.");
         sysSb.append("뉴스레터의 제목을 뽑고 'subject-'라고 붙여줘");
@@ -194,11 +196,16 @@ public class GeminiClient {
         log.info(response.text());
 
         // 답변을 제목과 본문으로 재가공
-        return this.artistMsgProcess(response.text());
+        ArtistMsgVo artistMsgVo = this.artistMsgProcess(response.text());
+        artistMsgVo.setArtistNmKor(concertInfoVo.getArtistNmKor());
+        artistMsgVo.setConcertYear(concertInfoVo.getConcertYear());
+        artistMsgVo.setConcertMonth(concertInfoVo.getConcertMonth());
+        artistMsgVo.setConcertDate(concertInfoVo.getConcertDate());
+        return artistMsgVo;
     }
 
     private ArtistMsgVo artistMsgProcess(String answer) {
-        ArtistMsgVo letterVo = new ArtistMsgVo();
+        ArtistMsgVo artistMsgVo = new ArtistMsgVo();
 
         String subject = "";
         String content = "";
@@ -220,10 +227,10 @@ public class GeminiClient {
                 content = answer.substring(lineEndIdx + 1).trim();
             }
 
-            letterVo.setSubject(subject);
-            letterVo.setContent(content);
+            artistMsgVo.setSubject(subject);
+            artistMsgVo.setContent(content);
         }
 
-        return letterVo;
+        return artistMsgVo;
     }
 }
