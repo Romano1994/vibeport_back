@@ -38,7 +38,7 @@ public class GeminiService {
                 "toYear", endYear, "toMonth", endMonth);
 
         // 이번 달 이후의 3개월의 콘서트 정보를 가져 옴
-        for(int i = 0; i < 1; i++) {
+        for(int i = 0; i < 3; i++) {
             today = today.plusMonths(1);
             year = today.getYear();
             month = today.getMonthValue();
