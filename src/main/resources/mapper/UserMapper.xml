@@ -91,4 +91,12 @@
             , NOW()
         )
     </insert>
+
+    <select id="selectLatestLatter" resultType="com.vibeport.ai.vo.ArtistMsgVo">
+        SELECT A.SUBJECT
+             , A.CONTENT
+        FROM TB_ARTIST_MSG AS A
+        ORDER BY MSG_NO
+        LIMIT 1
+    </select>
 </mapper>

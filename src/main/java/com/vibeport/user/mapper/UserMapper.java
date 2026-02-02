@@ -1,5 +1,6 @@
 package com.vibeport.user.mapper;
 
+import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.user.vo.RatingVo;
 import com.vibeport.user.vo.UserVo;
 import com.vibeport.user.vo.VerifCodeVo;
@@ -38,4 +39,6 @@ public interface UserMapper {
     boolean isCorrectEmail(Map<String, Object> param);
 
     void insertEmail(Map<String, Object> param);
+
+    ArtistMsgVo selectLatestLatter();
 }

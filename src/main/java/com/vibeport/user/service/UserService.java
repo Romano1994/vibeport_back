@@ -1,8 +1,10 @@
 package com.vibeport.user.service;
 
+import com.vibeport.ai.vo.ArtistMsgVo;
 import com.vibeport.auth.enums.Tokens;
 import com.vibeport.auth.utils.JwtUtil;
 import com.vibeport.exception.handler.BusinessException;
+import com.vibeport.mail.service.ArtistMsgMailService;
 import com.vibeport.mail.service.TestEmailService;
 import com.vibeport.mail.service.VerificationMailService;
 import com.vibeport.user.mapper.UserMapper;
@@ -26,9 +28,9 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final VerificationMailService verificationMailService;
-    private final TestEmailService emailService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final ArtistMsgMailService emailService;
 
     String TOKEN_PREFIX = "Bearer ";
 
@@ -173,5 +175,21 @@ public class UserService {
 
         // 이메일 등록
         this.userMapper.insertEmail(param);
+
+        // 온보딩 이메일 전송
+        this.sendOnBoardingEmail(param);
+    }
+
+    /*
+     * 온보딩 이메일 전송
+     */
+    private void sendOnBoardingEmail(Map<String, Object> param) {
+
+        // 가장 최근 뉴스레터
+//        ArtistMsgVo artistMsgVo = this.userMapper.selectLatestLatter();
+//        param.put("latestMsg", artistMsgVo);
+
+        // 온보딩 이메일 전송
+        this.emailService.sendOnboardingEmail(param);
     }
 }
