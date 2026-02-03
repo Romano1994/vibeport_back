@@ -27,15 +27,18 @@ public class ArtistMsgMailService {
 
         String content = templateEngine.process("artistInfo", context);
 
-        EmailVo emailVo = EmailVo.builder()
-                .from(sender)
-                .to(toList)
-                .subject(letterVo.getSubject())
-                .content(content)
-                .build();
+        toList.parallelStream().forEach(to -> {
+            EmailVo emailVo = EmailVo.builder()
+                    .from(sender)
+                    .to(List.of(to))
+                    .subject(letterVo.getSubject())
+                    .content(content)
+                    .build();
 
-        // 이메일 발송
-        sesClient.sendEmail(emailVo.toSendEmailRequest());
+            // 이메일 발송
+            sesClient.sendEmail(emailVo.toSendEmailRequest());
+        });
+
     }
 
     public void sendOnboardingEmail(Map<String, Object> param) {
