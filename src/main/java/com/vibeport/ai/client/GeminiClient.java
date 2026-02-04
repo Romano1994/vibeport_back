@@ -174,6 +174,7 @@ public class GeminiClient {
         sysSb.append("한 주제 내에서 문장의 끝 마다 줄 바꿈은 하지마.");
         sysSb.append("내용이 html을 통해서 표현 될 수 있도록 줄바꿈은 <br/><br/>으로 표현해.");
         sysSb.append("내용은 세 단락으로 나눠서 첫번째 단락에서는 가수 소개, 두번째에서는 공연 소개, 세번째에서는 해당 가수의 추천곡으로 구성해.");
+        sysSb.append("추천곡을 얘기 할 때는 한 곡을 얘기하고 줄 바꿈해.");
 
         StringBuffer userSb = new StringBuffer();
         userSb.append("가수 " + artistNm + "와 새로 예정된 공연에 대해서 1,000글자 이내로 소개하고 3개의 대표곡, 뽑은 대표곡들에 대한 설명도 덧 붙여줘.");
