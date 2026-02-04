@@ -64,10 +64,9 @@ public class GeminiService {
             System.out.println("========================saved===========");
             // pop score의 역순으로 정렬 (이미 발송된 건 제외하고, 널 체크 포함)
             firstConcert = savedConcertList.stream()
-                    .filter(data -> data.getSendYn() == null || data.getSendYn().isEmpty())
+                    .filter(data -> data.getSendYn() == null || data.getSendYn().isEmpty() || "N".equals(data.getSendYn()))
                     .sorted(Comparator.comparing(ConcertInfoVo::getPopScore).reversed())
                     .findFirst().get();
-
         }
 
         // 공연의 아티스트 설명
@@ -79,8 +78,11 @@ public class GeminiService {
         // 아티스트 정보 메일 발송
         this.sendArtistInfoMail(artistMsgVo);
 
-        // 메일 전송 여부 업데이트
-        this.aiMapper.updateSendYn(artistMsgVo);
+        // ArtistMsg 메일 전송 여부 업데이트
+        this.aiMapper.updateArtistMsgSendYn(artistMsgVo);
+
+        // ConcertInfo 메일 전송 여부 업데이트
+        this.aiMapper.updateConcertInfoSendYn(artistMsgVo);
     }
 
     private List<ConcertInfoVo> getNewConcertList(List<ConcertInfoVo> resultList, List<ConcertInfoVo> savedConcertList) {

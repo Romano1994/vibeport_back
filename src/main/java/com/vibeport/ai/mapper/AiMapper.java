@@ -19,5 +19,7 @@ public interface AiMapper {
 
     List<String> selectEmailList();
 
-    void updateSendYn(ArtistMsgVo artistMsgVo);
+    void updateArtistMsgSendYn(ArtistMsgVo artistMsgVo);
+
+    void updateConcertInfoSendYn(ArtistMsgVo artistMsgVo);
 }

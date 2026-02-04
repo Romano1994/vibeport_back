@@ -14,9 +14,9 @@
              , A.VENUE
              , A.TCT_SITE
              , A.TCT_OPEN_AT
-             , A.EMAIL_YN
              , A.POP_SCORE
              , A.ARTIST_NM_FOR
+             , A.SNED_YN
           FROM TB_CONCERT_INFO AS A
          WHERE A.CONCERT_YEAR = #{year}
            AND A.CONCERT_MONTH = #{month}
