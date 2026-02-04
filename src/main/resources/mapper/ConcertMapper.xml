@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vibeport.concert.mapper.ConcertMapper">
+
+    <select id="selectConcertInfosByMonth" parameterType="Map" resultType="com.vibeport.ai.vo.ConcertInfoVo">
+        /* ConcertMapper.selectConcertInfosByMonth 월별 콘서트 정보 조회 */
+        SELECT A.CONCERT_NO
+             , A.ARTIST_NM_KOR
+             , A.ARTIST_NM_FOR
+             , A.CONCERT_YEAR
+             , A.CONCERT_MONTH
+             , A.CONCERT_DATE
+             , A.CONCERT_TIME
+             , A.VENUE
+             , A.TCT_SITE
+             , A.TCT_OPEN_AT
+             , A.EMAIL_YN
+             , A.POP_SCORE
+             , A.ARTIST_NM_FOR
+          FROM TB_CONCERT_INFO AS A
+         WHERE A.CONCERT_YEAR = #{year}
+           AND A.CONCERT_MONTH = #{month}
+           AND (A.CONCERT_DATE IS NULL OR A.CONCERT_DATE <![CDATA[ <> ]]> '0')
+         ORDER BY A.CONCERT_DATE, A.POP_SCORE DESC
+    </select>
+
+</mapper>
