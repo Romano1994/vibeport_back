@@ -288,7 +288,6 @@ public class GeminiClient {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        conn.setRequestProperty("Referer", "http://localhost");
 
         int responseCode = conn.getResponseCode();
         if (responseCode >= 400) {
