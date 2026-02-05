@@ -44,7 +44,7 @@ public class GeminiService {
             month = today.getMonthValue();
 
             // Gemini의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
-            resultList.addAll(this.geminiClient.getConcertInfos(year, month));
+//            resultList.addAll(this.geminiClient.getConcertInfos(year, month));
         }
 
         // 저장된 해당 년월 콘서트 정보 가져옴
@@ -57,7 +57,7 @@ public class GeminiService {
         if(!newConcertList.isEmpty()) {
             System.out.println("========================new===========");
             // 새로 추가된 콘서트 정보들 DB에 저장
-            this.saveConcertInfos(newConcertList);
+//            this.saveConcertInfos(newConcertList);
 
             firstConcert = newConcertList.getFirst();
         } else { // 새로 추가된 콘서트 정보가 없을 경우
@@ -70,19 +70,24 @@ public class GeminiService {
         }
 
         // 공연의 아티스트 설명
-        ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(firstConcert);
+//        ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(firstConcert);
+        ArtistMsgVo artistMsgVo = new ArtistMsgVo();
+        artistMsgVo.setArtistNmKor("원 오크 록");
+
+        // 가수 사진 검색
+        this.geminiClient.getArtistPicture(artistMsgVo);
 
         // 아티스트 설명 DB저장
-        this.aiMapper.insertArtistMsg(artistMsgVo);
-
-        // 아티스트 정보 메일 발송
-        this.sendArtistInfoMail(artistMsgVo);
-
-        // ArtistMsg 메일 전송 여부 업데이트
-        this.aiMapper.updateArtistMsgSendYn(artistMsgVo);
-
-        // ConcertInfo 메일 전송 여부 업데이트
-        this.aiMapper.updateConcertInfoSendYn(artistMsgVo);
+//        this.aiMapper.insertArtistMsg(artistMsgVo);
+//
+//        // 아티스트 정보 메일 발송
+//        this.sendArtistInfoMail(artistMsgVo);
+//
+//        // ArtistMsg 메일 전송 여부 업데이트
+//        this.aiMapper.updateArtistMsgSendYn(artistMsgVo);
+//
+//        // ConcertInfo 메일 전송 여부 업데이트
+//        this.aiMapper.updateConcertInfoSendYn(artistMsgVo);
     }
 
     private List<ConcertInfoVo> getNewConcertList(List<ConcertInfoVo> resultList, List<ConcertInfoVo> savedConcertList) {

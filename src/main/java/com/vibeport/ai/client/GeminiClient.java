@@ -2,11 +2,26 @@ package com.vibeport.ai.client;
 
 import com.google.genai.Client;
 import com.google.genai.types.*;
-import com.vibeport.ai.vo.ConcertInfoVo;
 import com.vibeport.ai.vo.ArtistMsgVo;
+import com.vibeport.ai.vo.ConcertInfoVo;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.File;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +31,14 @@ public class GeminiClient {
 
     private final Client client;
     private final Tool googleSearchTool;
+
+    @Value("${google.custom-search.api-key}")
+    private String apiKey;
+
+    @Value("${google.custom-search.cx}")
+    private String searchEngineId;
+
+    private static final String SAVE_DIRECTORY = "./concert_images/";
 
     public GeminiClient() {
         this.client = Client.builder()
@@ -27,35 +50,35 @@ public class GeminiClient {
     }
 
     public List<ConcertInfoVo> getConcertInfos(int year, int month) throws Exception{
-        List<ConcertInfoVo> resultList = new ArrayList<>();
+        List<ConcertInfoVo> resultList;
 
         String systemPrompt = """
             ### 역할: SYSTEM
-            당신은 내한 콘서트 전문 데이터 분석가입니다.\n
-            아래 규칙을 절대적으로 준수하여 결과를 제공합니다.\n
-            당신은 추론은 사용하지 않고 검색 내용을 정리하기만 합니다.\n
-            \n
-            참고 사이트: 나무위키의 2026년 내한\n
-           \n
-            규칙:\n
-            0) **반드시 정확한 정보만 답변**\n
+            당신은 내한 콘서트 전문 데이터 분석가입니다.
+            아래 규칙을 절대적으로 준수하여 결과를 제공합니다.
+            당신은 추론은 사용하지 않고 검색 내용을 정리하기만 합니다.
+            
+            참고 사이트: 나무위키의 2026년 내한
+           
+            규칙:
+            0) **반드시 정확한 정보만 답변**
             1) 답변 형식은 반드시 다음 순서만 사용:
-               아티스트 한글명 / 아티스트 외국명 / 콘서트일자 및 시간 / 콘서트장소 / 예매처 / 예매시간 / 인기도 점수\n
-            2) 아직 정해지지 않은 정보는 '미정'으로 표기\n
-            3) 위 형식에 포함되지 않는 다른 설명, 해석, 불필요한 문장은 절대 포함하지 않기\n
-            4) 응답의 key는 '아티스트', '공연 일자' 두 개만 사용 - 같은 아티스트더라도 공연 일자가 다르면 다른 행으로 표기\n
-            5) 여러 결과가 있을 경우 줄바꿈으로 구분\n
-            6) 아티스트의 인기 순으로 정렬\n
-            7) 발표된 일정이 없으면 '-' 만 출력\n
-            8) 유명하지 않은 가수의 내한 정보도 출력\n
-            9) 가수명은 가급적 한글, 영문 병행 표기\n
-            10) 콘서트장소, 예매처 등의 나머지 항목들을 한글 표기\n
-            11) 응답 이외의 문자([1][2][3], ** 등)는 답변에 포함하지 않음\n
-            12) 인기도를 0 ~ 100으로 정해줘\n
-            13) 공연 날짜는 알지만 공연 시간을 특정할 수 없을 경우 00:00으로 표기\n
-       \n
-            규칙:\n
-            - 출력은 반드시 텍스트만 사용하며 어떤 추가 문장도 포함하지 않는다.\n
+               아티스트 한글명 / 아티스트 외국명 / 콘서트일자 및 시간 / 콘서트장소 / 예매처 / 예매시간 / 인기도 점수
+            2) 아직 정해지지 않은 정보는 '미정'으로 표기
+            3) 위 형식에 포함되지 않는 다른 설명, 해석, 불필요한 문장은 절대 포함하지 않기
+            4) 응답의 key는 '아티스트', '공연 일자' 두 개만 사용 - 같은 아티스트더라도 공연 일자가 다르면 다른 행으로 표기
+            5) 여러 결과가 있을 경우 줄바꿈으로 구분
+            6) 아티스트의 인기 순으로 정렬
+            7) 발표된 일정이 없으면 '-' 만 출력
+            8) 유명하지 않은 가수의 내한 정보도 출력
+            9) 가수명은 가급적 한글, 영문 병행 표기
+            10) 콘서트장소, 예매처 등의 나머지 항목들을 한글 표기
+            11) 응답 이외의 문자([1][2][3], ** 등)는 답변에 포함하지 않음
+            12) 인기도를 0 ~ 100으로 정해줘
+            13) 공연 날짜는 알지만 공연 시간을 특정할 수 없을 경우 00:00으로 표기
+       
+            규칙:
+            - 출력은 반드시 텍스트만 사용하며 어떤 추가 문장도 포함하지 않는다.
             - 출력 예시는 다음과 같다:
               아티스트 한글명 / 아티스트 외국명 / 2026-01-10 19:00 / 장소 / 예매처 / 예매시간 / 인기도 점수
        \s""";
@@ -162,7 +185,7 @@ public class GeminiClient {
     public ArtistMsgVo getArtistInfo(ConcertInfoVo concertInfoVo) {
         String artistNm = concertInfoVo.getArtistNmKor() + " (" + concertInfoVo.getArtistNmFor() + ")";
 
-        StringBuffer sysSb = new StringBuffer();
+        StringBuilder sysSb = new StringBuilder();
         sysSb.append("너는 재치있는 20대 음악 지식에 해박한 음악 평론가야. 그리고 대중들이 알기 쉽게 아티스트와 공연에 대한 설명을 뉴스레터로 전달할거야.");
         sysSb.append("뉴스레터의 제목을 뽑고 'subject-'라고 붙여줘");
         sysSb.append("이모티콘을 넣을 땐 마침표를 생략해.");
@@ -176,8 +199,8 @@ public class GeminiClient {
         sysSb.append("내용은 세 단락으로 나눠서 첫번째 단락에서는 가수 소개, 두번째에서는 공연 소개, 세번째에서는 해당 가수의 추천곡으로 구성해.");
         sysSb.append("추천곡을 얘기 할 때는 한 곡을 얘기하고 줄 바꿈해.");
 
-        StringBuffer userSb = new StringBuffer();
-        userSb.append("가수 " + artistNm + "와 새로 예정된 공연에 대해서 1,000글자 이내로 소개하고 3개의 대표곡, 뽑은 대표곡들에 대한 설명도 덧 붙여줘.");
+        StringBuilder userSb = new StringBuilder();
+        userSb.append("가수 ").append(artistNm).append("와 새로 예정된 공연에 대해서 1,000글자 이내로 소개하고 3개의 대표곡, 뽑은 대표곡들에 대한 설명도 덧 붙여줘.");
 
         Content systemInstruction = Content.builder()
                 .parts(List.of(Part.builder().text(sysSb.toString()).build()))
@@ -234,5 +257,81 @@ public class GeminiClient {
         }
 
         return artistMsgVo;
+    }
+
+    public void getArtistPicture(ArtistMsgVo artistMsgVo) throws Exception {
+        String artistNmKor = artistMsgVo.getArtistNmKor();
+
+        String imgUrl = getImageUrl(artistNmKor);
+
+        if (imgUrl != null && imgUrl.startsWith("http")) {
+            // 2. 이미지 다운로드 및 저장
+            String fileName = artistNmKor + "_" + System.currentTimeMillis() + ".jpg";
+            saveImageFromServer(imgUrl, fileName);
+            System.out.println("저장 완료: " + SAVE_DIRECTORY + fileName);
+        } else {
+            System.out.println("이미지 URL을 찾지 못했습니다.");
+        }
+    }
+
+    private String getImageUrl(String query) throws Exception {
+        String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
+        String safeApiKey = (apiKey != null) ? apiKey.trim() : "";
+        String safeCx = (searchEngineId != null) ? searchEngineId.trim() : "";
+
+        String urlString = String.format(
+                "https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&searchType=image&num=1",
+                safeApiKey, safeCx, encodedQuery
+        );
+
+        URL url = URI.create(urlString).toURL();
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        conn.setRequestProperty("Referer", "http://localhost");
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode >= 400) {
+            try (InputStream es = conn.getErrorStream();
+                 BufferedReader errorReader = new BufferedReader(new InputStreamReader(es))) {
+                StringBuilder errorResponse = new StringBuilder();
+                String line;
+                while ((line = errorReader.readLine()) != null) {
+                    errorResponse.append(line);
+                }
+                log.error("Google Custom Search API Error (Code {}): {}", responseCode, errorResponse);
+                return null;
+            }
+        }
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) response.append(line);
+
+            JSONObject jsonResponse = new JSONObject(response.toString());
+            if (jsonResponse.has("items")) {
+                return jsonResponse.getJSONArray("items").getJSONObject(0).getString("link");
+            }
+        }
+        return null;
+    }
+
+    // URL의 이미지를 서버 파일로 저장
+    public void saveImageFromServer(String imageUrl, String fileName) throws IOException {
+        // 저장할 폴더가 없으면 생성
+        File dir = new File(SAVE_DIRECTORY);
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw new IOException("Failed to create directory: " + SAVE_DIRECTORY);
+        }
+
+        URL url = URI.create(imageUrl).toURL();
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+        try (InputStream in = connection.getInputStream()) {
+            // Files.copy를 이용해 입력 스트림을 파일로 저장
+            Files.copy(in, Paths.get(SAVE_DIRECTORY + fileName), StandardCopyOption.REPLACE_EXISTING);
+        }
     }
 }
