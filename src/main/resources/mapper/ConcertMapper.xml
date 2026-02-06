@@ -16,11 +16,15 @@
              , A.TCT_OPEN_AT
              , A.POP_SCORE
              , A.ARTIST_NM_FOR
-             , A.SNED_YN
+             , A.SEND_YN
           FROM TB_CONCERT_INFO AS A
          WHERE A.CONCERT_YEAR = #{year}
            AND A.CONCERT_MONTH = #{month}
            AND (A.CONCERT_DATE IS NULL OR A.CONCERT_DATE <![CDATA[ <> ]]> '0')
+         GROUP BY A.CONCERT_YEAR
+             , A.CONCERT_MONTH
+             , A.CONCERT_DATE
+             , A.VENUE
          ORDER BY A.CONCERT_DATE, A.POP_SCORE DESC
     </select>
 
