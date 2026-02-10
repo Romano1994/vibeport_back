@@ -9,6 +9,7 @@ public class ArtistMsgVo {
     private int concertMonth;
     private int concertDate;
     private String artistNmKor;
+    private String artistImageUrl;
     private String subject;
     private String content;
     private String sendYn;

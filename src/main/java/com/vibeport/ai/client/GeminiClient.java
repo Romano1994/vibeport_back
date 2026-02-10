@@ -32,13 +32,13 @@ public class GeminiClient {
     private final Client client;
     private final Tool googleSearchTool;
 
-    @Value("${google.custom-search.api-key}")
-    private String apiKey;
+    @Value("${serpapi.api-key}")
+    private String serpApiKey;
 
-    @Value("${google.custom-search.cx}")
-    private String searchEngineId;
+    @Value("${app.public-base-url:}")
+    private String publicBaseUrl;
 
-    private static final String SAVE_DIRECTORY = "./concert_images/";
+    private static final String SAVE_DIRECTORY = "./src/main/resources/concert_images/";
 
     public GeminiClient() {
         this.client = Client.builder()
@@ -268,6 +268,7 @@ public class GeminiClient {
             // 2. 이미지 다운로드 및 저장
             String fileName = artistNmKor + "_" + System.currentTimeMillis() + ".jpg";
             saveImageFromServer(imgUrl, fileName);
+            artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
             System.out.println("저장 완료: " + SAVE_DIRECTORY + fileName);
         } else {
             System.out.println("이미지 URL을 찾지 못했습니다.");
@@ -276,12 +277,11 @@ public class GeminiClient {
 
     private String getImageUrl(String query) throws Exception {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
-        String safeApiKey = (apiKey != null) ? apiKey.trim() : "";
-        String safeCx = (searchEngineId != null) ? searchEngineId.trim() : "";
+        String safeApiKey = (serpApiKey != null) ? serpApiKey.trim() : "";
 
         String urlString = String.format(
-                "https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&searchType=image&num=1",
-                safeApiKey, safeCx, encodedQuery
+                "https://serpapi.com/search.json?q=%s&tbm=isch&api_key=%s&num=1",
+                encodedQuery, safeApiKey
         );
 
         URL url = URI.create(urlString).toURL();
@@ -298,7 +298,7 @@ public class GeminiClient {
                 while ((line = errorReader.readLine()) != null) {
                     errorResponse.append(line);
                 }
-                log.error("Google Custom Search API Error (Code {}): {}", responseCode, errorResponse);
+                log.error("SerpAPI Error (Code {}): {}", responseCode, errorResponse);
                 return null;
             }
         }
@@ -309,8 +309,8 @@ public class GeminiClient {
             while ((line = br.readLine()) != null) response.append(line);
 
             JSONObject jsonResponse = new JSONObject(response.toString());
-            if (jsonResponse.has("items")) {
-                return jsonResponse.getJSONArray("items").getJSONObject(0).getString("link");
+            if (jsonResponse.has("images_results")) {
+                return jsonResponse.getJSONArray("images_results").getJSONObject(0).getString("original");
             }
         }
         return null;
@@ -332,5 +332,14 @@ public class GeminiClient {
             // Files.copy를 이용해 입력 스트림을 파일로 저장
             Files.copy(in, Paths.get(SAVE_DIRECTORY + fileName), StandardCopyOption.REPLACE_EXISTING);
         }
+    }
+
+    private String buildPublicImageUrl(String path) {
+        if (publicBaseUrl == null || publicBaseUrl.isBlank()) {
+            return path;
+        }
+        String base = publicBaseUrl.endsWith("/") ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1) : publicBaseUrl;
+        String cleanPath = path.startsWith("/") ? path : "/" + path;
+        return base + cleanPath;
     }
 }

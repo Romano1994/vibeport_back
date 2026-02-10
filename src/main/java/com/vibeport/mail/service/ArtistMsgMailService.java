@@ -24,6 +24,7 @@ public class ArtistMsgMailService {
     public void artistMsgEmailSend(List<String> toList, ArtistMsgVo letterVo) {
         Context context = new Context();
         context.setVariable("artistInfo", letterVo.getContent());
+        context.setVariable("artistImageUrl", letterVo.getArtistImageUrl());
 
         String content = templateEngine.process("artistInfo", context);
 

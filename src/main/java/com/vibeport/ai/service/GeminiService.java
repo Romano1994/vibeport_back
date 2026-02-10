@@ -44,7 +44,7 @@ public class GeminiService {
             month = today.getMonthValue();
 
             // Gemini의 API를 통해서 업데이트 된 콘서트 정보를 가져온다.
-            resultList.addAll(this.geminiClient.getConcertInfos(year, month));
+//            resultList.addAll(this.geminiClient.getConcertInfos(year, month));
         }
 
         // 저장된 해당 년월 콘서트 정보 가져옴
@@ -71,11 +71,9 @@ public class GeminiService {
 
         // 공연의 아티스트 설명
         ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(firstConcert);
-//        ArtistMsgVo artistMsgVo = new ArtistMsgVo();
-//        artistMsgVo.setArtistNmKor("원 오크 록");
 
-        // 가수 사진 검색
-//        this.geminiClient.getArtistPicture(artistMsgVo);
+        //가수 사진 검색
+        this.geminiClient.getArtistPicture(artistMsgVo);
 
         // 아티스트 설명 DB저장
         this.aiMapper.insertArtistMsg(artistMsgVo);
@@ -160,7 +158,8 @@ public class GeminiService {
     @Transactional
     private void sendArtistInfoMail(ArtistMsgVo artistMsgVo) {
         // 이메일 발송 목록 조회
-        List<String> emailList = this.aiMapper.selectEmailList();
+//        List<String> emailList = this.aiMapper.selectEmailList();
+        List<String> emailList = List.of("sala9423@naver.com");
 
         // 이메일 발송
         this.emailService.artistMsgEmailSend(emailList, artistMsgVo);
