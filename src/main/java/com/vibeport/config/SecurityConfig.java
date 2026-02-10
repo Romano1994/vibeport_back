@@ -59,6 +59,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
+                "http://localhost:8081",
                 "http://13.211.47.98",
                 "http://13.211.47.98:8081",
                 "http://vibeport.live",

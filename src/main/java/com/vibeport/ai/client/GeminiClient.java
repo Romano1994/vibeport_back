@@ -38,7 +38,8 @@ public class GeminiClient {
     @Value("${app.public-base-url:}")
     private String publicBaseUrl;
 
-    private static final String SAVE_DIRECTORY = "./src/main/resources/concert_images/";
+    @Value("${app.image-dir:./data/concert_images/}")
+    private String imageDir;
 
     public GeminiClient() {
         this.client = Client.builder()
@@ -273,10 +274,12 @@ public class GeminiClient {
                     String fileName = artistNmKor + "_" + System.currentTimeMillis() + ".jpg";
                     saveImageFromServer(imgUrl, fileName);
                     artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
-                    System.out.println("저장 완료: " + SAVE_DIRECTORY + fileName);
+                    System.out.println("저장 완료: " + ensureTrailingSlash(imageDir) + fileName);
                     saved = true;
                     break;
                 } catch (IOException e) {
+                    // 도메인 블랙 리스트 저장
+
                     log.warn("Image download failed, try next. url={}", imgUrl);
                 }
             }
@@ -340,9 +343,10 @@ public class GeminiClient {
     // URL의 이미지를 서버 파일로 저장
     public void saveImageFromServer(String imageUrl, String fileName) throws IOException {
         // 저장할 폴더가 없으면 생성
-        File dir = new File(SAVE_DIRECTORY);
+        String dirPath = ensureTrailingSlash(imageDir);
+        File dir = new File(dirPath);
         if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException("Failed to create directory: " + SAVE_DIRECTORY);
+            throw new IOException("Failed to create directory: " + dirPath);
         }
 
         URL url = URI.create(imageUrl).toURL();
@@ -352,7 +356,7 @@ public class GeminiClient {
 
         try (InputStream in = connection.getInputStream()) {
             // Files.copy를 이용해 입력 스트림을 파일로 저장
-            Files.copy(in, Paths.get(SAVE_DIRECTORY + fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(in, Paths.get(dirPath + fileName), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
@@ -363,6 +367,13 @@ public class GeminiClient {
         String base = publicBaseUrl.endsWith("/") ? publicBaseUrl.substring(0, publicBaseUrl.length() - 1) : publicBaseUrl;
         String cleanPath = path.startsWith("/") ? path : "/" + path;
         return base + cleanPath;
+    }
+
+    private String ensureTrailingSlash(String value) {
+        if (value == null || value.isBlank()) {
+            return "./data/concert_images/";
+        }
+        return value.endsWith("/") || value.endsWith("\\") ? value : value + "/";
     }
 }
 
