@@ -262,26 +262,38 @@ public class GeminiClient {
     public void getArtistPicture(ArtistMsgVo artistMsgVo) throws Exception {
         String artistNmKor = artistMsgVo.getArtistNmKor();
 
-        String imgUrl = getImageUrl(artistNmKor);
+        List<String> imgUrls = getImageUrls(artistNmKor, 5);
+        boolean saved = false;
+        if (imgUrls != null) {
+            for (String imgUrl : imgUrls) {
+                if (imgUrl == null || !imgUrl.startsWith("http")) {
+                    continue;
+                }
+                try {
+                    String fileName = artistNmKor + "_" + System.currentTimeMillis() + ".jpg";
+                    saveImageFromServer(imgUrl, fileName);
+                    artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
+                    System.out.println("저장 완료: " + SAVE_DIRECTORY + fileName);
+                    saved = true;
+                    break;
+                } catch (IOException e) {
+                    log.warn("Image download failed, try next. url={}", imgUrl);
+                }
+            }
+        }
 
-        if (imgUrl != null && imgUrl.startsWith("http")) {
-            // 2. 이미지 다운로드 및 저장
-            String fileName = artistNmKor + "_" + System.currentTimeMillis() + ".jpg";
-            saveImageFromServer(imgUrl, fileName);
-            artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
-            System.out.println("저장 완료: " + SAVE_DIRECTORY + fileName);
-        } else {
+        if (!saved) {
             System.out.println("이미지 URL을 찾지 못했습니다.");
         }
     }
 
-    private String getImageUrl(String query) throws Exception {
+    private List<String> getImageUrls(String query, int max) throws Exception {
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String safeApiKey = (serpApiKey != null) ? serpApiKey.trim() : "";
 
         String urlString = String.format(
-                "https://serpapi.com/search.json?q=%s&tbm=isch&api_key=%s&num=1",
-                encodedQuery, safeApiKey
+                "https://serpapi.com/search.json?q=%s&tbm=isch&api_key=%s&num=%d",
+                encodedQuery, safeApiKey, max
         );
 
         URL url = URI.create(urlString).toURL();
@@ -299,7 +311,7 @@ public class GeminiClient {
                     errorResponse.append(line);
                 }
                 log.error("SerpAPI Error (Code {}): {}", responseCode, errorResponse);
-                return null;
+                return List.of();
             }
         }
 
@@ -310,10 +322,19 @@ public class GeminiClient {
 
             JSONObject jsonResponse = new JSONObject(response.toString());
             if (jsonResponse.has("images_results")) {
-                return jsonResponse.getJSONArray("images_results").getJSONObject(0).getString("original");
+                List<String> result = new ArrayList<>();
+                int count = jsonResponse.getJSONArray("images_results").length();
+                int limit = Math.min(count, max);
+                for (int i = 0; i < limit; i++) {
+                    JSONObject item = jsonResponse.getJSONArray("images_results").getJSONObject(i);
+                    if (item.has("original")) {
+                        result.add(item.getString("original"));
+                    }
+                }
+                return result;
             }
         }
-        return null;
+        return List.of();
     }
 
     // URL의 이미지를 서버 파일로 저장
@@ -327,6 +348,7 @@ public class GeminiClient {
         URL url = URI.create(imageUrl).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+        connection.setRequestProperty("Referer", "https://www.google.com/");
 
         try (InputStream in = connection.getInputStream()) {
             // Files.copy를 이용해 입력 스트림을 파일로 저장
@@ -343,3 +365,5 @@ public class GeminiClient {
         return base + cleanPath;
     }
 }
+
+
