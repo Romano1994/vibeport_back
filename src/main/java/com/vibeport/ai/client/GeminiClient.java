@@ -364,7 +364,7 @@ public class GeminiClient {
 
         try (InputStream in = connection.getInputStream()) {
             // Files.copy를 이용해 입력 스트림을 파일로 저장
-            Files.copy(in, Paths.get(dirPath + fileName), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(in, Paths.get(dirPath + finalFileName), StandardCopyOption.REPLACE_EXISTING);
         }
         return finalFileName;
     }
