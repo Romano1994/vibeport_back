@@ -272,7 +272,7 @@ public class GeminiClient {
                     continue;
                 }
                 try {
-                    String fileName = artistNmFor + "_" + System.currentTimeMillis() + ".jpg";
+                    String fileName = "artist_" + java.util.UUID.randomUUID() + ".jpg";
                     saveImageFromServer(imgUrl, fileName);
                     artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
                     System.out.println("저장 완료: " + ensureTrailingSlash(imageDir) + fileName);
