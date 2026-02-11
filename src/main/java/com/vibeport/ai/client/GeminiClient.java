@@ -224,6 +224,7 @@ public class GeminiClient {
         // 답변을 제목과 본문으로 재가공
         ArtistMsgVo artistMsgVo = this.artistMsgProcess(response.text());
         artistMsgVo.setArtistNmKor(concertInfoVo.getArtistNmKor());
+        artistMsgVo.setArtistNmFor(concertInfoVo.getArtistNmFor());
         artistMsgVo.setConcertYear(concertInfoVo.getConcertYear());
         artistMsgVo.setConcertMonth(concertInfoVo.getConcertMonth());
         artistMsgVo.setConcertDate(concertInfoVo.getConcertDate());
@@ -261,9 +262,9 @@ public class GeminiClient {
     }
 
     public void getArtistPicture(ArtistMsgVo artistMsgVo) throws Exception {
-        String artistNmKor = artistMsgVo.getArtistNmKor();
+        String artistNmFor = artistMsgVo.getArtistNmFor();
 
-        List<String> imgUrls = getImageUrls(artistNmKor, 5);
+        List<String> imgUrls = getImageUrls(artistNmFor, 5);
         boolean saved = false;
         if (imgUrls != null) {
             for (String imgUrl : imgUrls) {
@@ -271,7 +272,7 @@ public class GeminiClient {
                     continue;
                 }
                 try {
-                    String fileName = artistNmKor + "_" + System.currentTimeMillis() + ".jpg";
+                    String fileName = artistNmFor + "_" + System.currentTimeMillis() + ".jpg";
                     saveImageFromServer(imgUrl, fileName);
                     artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
                     System.out.println("저장 완료: " + ensureTrailingSlash(imageDir) + fileName);

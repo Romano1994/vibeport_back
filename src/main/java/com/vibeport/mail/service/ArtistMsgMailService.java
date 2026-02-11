@@ -26,6 +26,10 @@ public class ArtistMsgMailService {
         context.setVariable("artistInfo", letterVo.getContent());
         context.setVariable("artistImageUrl", letterVo.getArtistImageUrl());
 
+        System.out.println("=============================");
+        System.out.println(letterVo.getArtistImageUrl());
+        System.out.println("=============================");
+
         String content = templateEngine.process("artistInfo", context);
 
         toList.parallelStream().forEach(to -> {
