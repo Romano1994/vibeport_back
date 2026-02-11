@@ -272,10 +272,10 @@ public class GeminiClient {
                     continue;
                 }
                 try {
-                    String fileName = "artist_" + java.util.UUID.randomUUID() + ".jpg";
-                    saveImageFromServer(imgUrl, fileName);
-                    artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + fileName));
-                    System.out.println("저장 완료: " + ensureTrailingSlash(imageDir) + fileName);
+                    String fileName = "artist_" + java.util.UUID.randomUUID();
+                    String savedFileName = saveImageFromServer(imgUrl, fileName);
+                    artistMsgVo.setArtistImageUrl(buildPublicImageUrl("/concert_images/" + savedFileName));
+                    System.out.println("저장 완료: " + ensureTrailingSlash(imageDir) + savedFileName);
                     saved = true;
                     break;
                 } catch (IOException e) {
@@ -342,7 +342,7 @@ public class GeminiClient {
     }
 
     // URL의 이미지를 서버 파일로 저장
-    public void saveImageFromServer(String imageUrl, String fileName) throws IOException {
+    public String saveImageFromServer(String imageUrl, String fileName) throws IOException {
         // 저장할 폴더가 없으면 생성
         String dirPath = ensureTrailingSlash(imageDir);
         File dir = new File(dirPath);
@@ -355,10 +355,18 @@ public class GeminiClient {
         connection.setRequestProperty("User-Agent", "Mozilla/5.0");
         connection.setRequestProperty("Referer", "https://www.google.com/");
 
+        String contentType = connection.getContentType();
+        String ext = extFromContentType(contentType);
+        if (ext == null) {
+            ext = ".jpg";
+        }
+        String finalFileName = fileName + ext;
+
         try (InputStream in = connection.getInputStream()) {
             // Files.copy를 이용해 입력 스트림을 파일로 저장
             Files.copy(in, Paths.get(dirPath + fileName), StandardCopyOption.REPLACE_EXISTING);
         }
+        return finalFileName;
     }
 
     private String buildPublicImageUrl(String path) {
@@ -370,6 +378,15 @@ public class GeminiClient {
         return base + cleanPath;
     }
 
+    private String extFromContentType(String contentType) {
+        if (contentType == null) return null;
+        String ct = contentType.toLowerCase();
+        if (ct.contains("image/jpeg") || ct.contains("image/jpg")) return ".jpg";
+        if (ct.contains("image/png")) return ".png";
+        if (ct.contains("image/webp")) return ".webp";
+        if (ct.contains("image/gif")) return ".gif";
+        return null;
+    }
     private String ensureTrailingSlash(String value) {
         if (value == null || value.isBlank()) {
             return "./data/concert_images/";
