@@ -22,4 +22,6 @@ public interface AiMapper {
     void updateArtistMsgSendYn(ArtistMsgVo artistMsgVo);
 
     void updateConcertInfoSendYn(ArtistMsgVo artistMsgVo);
+
+    ConcertInfoVo selectRandomSendedInfo();
 }
