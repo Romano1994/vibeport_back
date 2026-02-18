@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.springframework.core.io.ClassPathResource;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +24,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,36 +57,7 @@ public class GeminiClient {
     public List<ConcertInfoVo> getConcertInfos(int year, int month) throws Exception{
         List<ConcertInfoVo> resultList;
 
-        String systemPrompt = """
-            ### 역할: SYSTEM
-            당신은 내한 콘서트 전문 데이터 분석가입니다.
-            아래 규칙을 절대적으로 준수하여 결과를 제공합니다.
-            당신은 추론은 사용하지 않고 검색 내용을 정리하기만 합니다.
-            
-            참고 사이트: 나무위키의 2026년 내한
-           
-            규칙:
-            0) **반드시 정확한 정보만 답변**
-            1) 답변 형식은 반드시 다음 순서만 사용:
-               아티스트 한글명 / 아티스트 외국명 / 콘서트일자 및 시간 / 콘서트장소 / 예매처 / 예매시간 / 인기도 점수
-            2) 아직 정해지지 않은 정보는 '미정'으로 표기
-            3) 위 형식에 포함되지 않는 다른 설명, 해석, 불필요한 문장은 절대 포함하지 않기
-            4) 응답의 key는 '아티스트', '공연 일자' 두 개만 사용 - 같은 아티스트더라도 공연 일자가 다르면 다른 행으로 표기
-            5) 여러 결과가 있을 경우 줄바꿈으로 구분
-            6) 아티스트의 인기 순으로 정렬
-            7) 발표된 일정이 없으면 '-' 만 출력
-            8) 유명하지 않은 가수의 내한 정보도 출력
-            9) 가수명은 가급적 한글, 영문 병행 표기
-            10) 콘서트장소, 예매처 등의 나머지 항목들을 한글 표기
-            11) 응답 이외의 문자([1][2][3], ** 등)는 답변에 포함하지 않음
-            12) 인기도를 0 ~ 100으로 정해줘
-            13) 공연 날짜는 알지만 공연 시간을 특정할 수 없을 경우 00:00으로 표기
-       
-            규칙:
-            - 출력은 반드시 텍스트만 사용하며 어떤 추가 문장도 포함하지 않는다.
-            - 출력 예시는 다음과 같다:
-              아티스트 한글명 / 아티스트 외국명 / 2026-01-10 19:00 / 장소 / 예매처 / 예매시간 / 인기도 점수
-       \s""";
+        String systemPrompt = loadPrompt("prompts/concert-info-system.txt");
 
         Content systemInstruction = Content.builder()
                 .parts(List.of(Part.builder().text(systemPrompt).build()))
@@ -105,6 +80,40 @@ public class GeminiClient {
         );
 
         log.info("response==========" + response.text());
+
+        resultList = this.concertInfoReprocess(response.text());
+        return resultList;
+    }
+
+    public List<ConcertInfoVo> getDailyConcertInfos() throws Exception {
+        List<ConcertInfoVo> resultList;
+
+        String systemPrompt = loadPrompt("prompts/daily-concert-info-system.txt");
+
+        Content systemInstruction = Content.builder()
+                .parts(List.of(Part.builder().text(systemPrompt).build()))
+                .build();
+
+        GenerateContentConfig config = GenerateContentConfig.builder()
+                .tools(List.of(googleSearchTool))
+                .systemInstruction(systemInstruction)
+                .temperature(0.0f)
+                .build();
+
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        String dateStr = yesterday.format(DateTimeFormatter.ofPattern("yyyy년 M월 d일"));
+
+        String userPrompt = "### 역할 : USER\n" +
+                dateStr + "에 새로 발표된 내한 콘서트 정보를 알려줘.";
+
+        log.info("daily concert search date: {}", dateStr);
+        GenerateContentResponse response = client.models.generateContent(
+                "gemini-3-pro-preview",
+                Content.builder().parts(List.of(Part.builder().text(userPrompt).build())).build(),
+                config
+        );
+
+        log.info("daily response==========" + response.text());
 
         resultList = this.concertInfoReprocess(response.text());
         return resultList;
@@ -165,10 +174,15 @@ public class GeminiClient {
                 vo.setTctOpenAt(tmp[5].trim());
             }
 
-            // 5: 인기도 점수 (0~100 사이 INT 예상)
+            // 5: 장르
             if (tmp.length > 6) {
+                vo.setGenre(tmp[6].trim());
+            }
+
+            // 6: 인기도 점수 (0~100 사이 INT 예상)
+            if (tmp.length > 7) {
                 try {
-                    int score = Integer.parseInt(tmp[6].trim());
+                    int score = Integer.parseInt(tmp[7].trim());
                     vo.setPopScore(score);
                 } catch (NumberFormatException ignore) {
                     // 파싱 실패 시 기본값(0.0) 유지
@@ -186,25 +200,13 @@ public class GeminiClient {
     public ArtistMsgVo getArtistInfo(ConcertInfoVo concertInfoVo) {
         String artistNm = concertInfoVo.getArtistNmKor() + " (" + concertInfoVo.getArtistNmFor() + ")";
 
-        StringBuilder sysSb = new StringBuilder();
-        sysSb.append("너는 재치있는 20대 음악 지식에 해박한 음악 평론가야. 그리고 대중들이 알기 쉽게 아티스트와 공연에 대한 설명을 뉴스레터로 전달할거야.");
-        sysSb.append("뉴스레터의 제목을 뽑고 'subject-'라고 붙여줘");
-        sysSb.append("이모티콘을 넣을 땐 마침표를 생략해.");
-        sysSb.append("출처 표시 [1][2]...는 하지마.");
-        sysSb.append("뉴스레터는 안녕하세요 여러분! VIBEPORT입니다!로 시작해.");
-        sysSb.append("답변은 존댓말로 해.");
-        sysSb.append("최종적으로 답변이 몇 자인지는 안 알려줘도 돼.");
-        sysSb.append("이모티콘은 한 주제가 끝 날때, 노래 추천할 때 제목에만 사용하고 '**'는 시용하지마.");
-        sysSb.append("한 주제 내에서 문장의 끝 마다 줄 바꿈은 하지마.");
-        sysSb.append("내용이 html을 통해서 표현 될 수 있도록 줄바꿈은 <br/><br/>으로 표현해.");
-        sysSb.append("내용은 세 단락으로 나눠서 첫번째 단락에서는 가수 소개, 두번째에서는 공연 소개, 세번째에서는 해당 가수의 추천곡으로 구성해.");
-        sysSb.append("추천곡을 얘기 할 때는 한 곡을 얘기하고 줄 바꿈해.");
+        String systemPrompt = loadPrompt("prompts/artist-info-system.txt");
 
         StringBuilder userSb = new StringBuilder();
         userSb.append("가수 ").append(artistNm).append("와 새로 예정된 공연에 대해서 1,000글자 이내로 소개하고 3개의 대표곡, 뽑은 대표곡들에 대한 설명도 덧 붙여줘.");
 
         Content systemInstruction = Content.builder()
-                .parts(List.of(Part.builder().text(sysSb.toString()).build()))
+                .parts(List.of(Part.builder().text(systemPrompt).build()))
                 .build();
 
         GenerateContentConfig config = GenerateContentConfig.builder()
@@ -392,6 +394,20 @@ public class GeminiClient {
             return "./data/concert_images/";
         }
         return value.endsWith("/") || value.endsWith("\\") ? value : value + "/";
+    }
+
+    private String loadPrompt(String path) {
+        try (InputStream is = new ClassPathResource(path).getInputStream();
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            return sb.toString().trim();
+        } catch (IOException e) {
+            throw new RuntimeException("프롬프트 파일 로드 실패: " + path, e);
+        }
     }
 }
 
