@@ -16,6 +16,7 @@ public class ConcertInfoVo {
     private String venue;
     private String tctSite;
     private String tctOpenAt;
+    private String genre;
     private String emailYn;
     private int popScore;
     private LocalDateTime regTime;

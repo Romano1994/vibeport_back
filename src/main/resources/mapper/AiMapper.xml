@@ -22,6 +22,7 @@
             , VENUE
             , TCT_SITE
             , TCT_OPEN_AT
+            , GENRE
             , POP_SCORE
             , SEND_YN
             , REG_TIME
@@ -35,6 +36,7 @@
             , #{venue}
             , #{tctSite}
             , #{tctOpenAt}
+            , #{genre}
             , #{popScore}
             , 'N'
             , NOW()
@@ -49,6 +51,7 @@
             , VENUE = VALUES(VENUE)
             , TCT_SITE = VALUES(TCT_SITE)
             , TCT_OPEN_AT = VALUES(TCT_OPEN_AT)
+            , GENRE = VALUES(GENRE)
     </insert>
 
     <insert id="insertMailLog">
@@ -97,6 +100,7 @@
              , A.POP_SCORE       AS popScore
              , A.REG_TIME        AS regTime
              , B.SEND_YN         AS sendYn
+             , A.GENRE           AS genre
           FROM TB_CONCERT_INFO AS A
           LEFT OUTER JOIN TB_ARTIST_MSG AS B
             ON A.ARTIST_NM_KOR = B.ARTIST_NM_KOR
@@ -132,4 +136,12 @@
                    AND CONCAT(#{concertYear}, #{concertMonth}, #{concertDate}) + 7
            AND ARTIST_NM_KOR = #{artistNmKor}
     </update>
+
+    <select id="selectRandomSendedInfo" resultType="com.vibeport.ai.vo.ConcertInfoVo">
+        SELECT A.*
+          FROM TB_CONCERT_INFO AS A
+         WHERE SEND_YN = 'Y'
+         ORDER BY RAND()
+         LIMIT 1
+    </select>
 </mapper>
