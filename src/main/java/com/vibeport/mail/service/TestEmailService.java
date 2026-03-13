@@ -23,6 +23,7 @@ public class TestEmailService {
     public void emailVerifSend(List<String> toList, ArtistMsgVo letterVo) {
         Context context = new Context();
         context.setVariable("artistInfo", letterVo.getContent());
+        context.setVariable("artistImageUrl", letterVo.getArtistImageUrl());
 
         String content = templateEngine.process("artistInfo", context);
 
