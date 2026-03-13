@@ -35,3 +35,12 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Claude Code ###
+.claude/
+
+### Local Configuration ###
+src/main/resources/application.properties
+
+### Concert Images ###
+src/main/resources/concert_images/
