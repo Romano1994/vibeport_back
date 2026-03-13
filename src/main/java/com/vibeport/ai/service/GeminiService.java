@@ -69,6 +69,9 @@ public class GeminiService {
                     .findFirst().get();
         }
 
+//        // 이미 발송된 콘서트 정보 무작위 한 건만 - 테스트용
+//        ConcertInfoVo firstConcert = this.aiMapper.selectRandomSendedInfo();
+
         // 공연의 아티스트 설명
         ArtistMsgVo artistMsgVo = this.geminiClient.getArtistInfo(firstConcert);
 
